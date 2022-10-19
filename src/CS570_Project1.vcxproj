@@ -1,0 +1,250 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>{0524fa31-1152-4d14-a1bb-a1c06439af21}</ProjectGuid>
+    <RootNamespace>CS570Project1</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v142</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <AdditionalIncludeDirectories>$(SolutionDir)libs\d3d12x;$(SolutionDir)libs</AdditionalIncludeDirectories>
+      <LanguageStandard>Default</LanguageStandard>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(SolutionDir)libs\imgui\ImGUI.lib;$(SolutionDir)libs\AGS\amd_ags_x64.lib;dxcompiler.lib;d3dcompiler.lib;D3D12.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>false</ConformanceMode>
+      <LanguageStandard>Default</LanguageStandard>
+      <AdditionalIncludeDirectories>$(SolutionDir)libs\d3d12x;$(SolutionDir)libs</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(SolutionDir)libs\imgui\ImGUI.lib;$(SolutionDir)libs\AGS\amd_ags_x64.lib;dxcompiler.lib;d3dcompiler.lib;D3D12.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="DX12\Async.cpp" />
+    <ClCompile Include="DX12\CommandListRing.cpp" />
+    <ClCompile Include="DX12\ComputeHistogram.cpp" />
+    <ClCompile Include="DX12\DDSLoader.cpp" />
+    <ClCompile Include="DX12\Device.cpp" />
+    <ClCompile Include="DX12\DXCHelper.cpp" />
+    <ClCompile Include="DX12\DxgiFormatHelper.cpp" />
+    <ClCompile Include="DX12\DynamicBufferRing.cpp" />
+    <ClCompile Include="DX12\Error.cpp" />
+    <ClCompile Include="DX12\Fence.cpp" />
+    <ClCompile Include="DX12\FrameworkWindows.cpp" />
+    <ClCompile Include="DX12\FreesyncHDR.cpp" />
+    <ClCompile Include="DX12\GPUTimestamps.cpp" />
+    <ClCompile Include="DX12\Hash.cpp" />
+    <ClCompile Include="DX12\Helper.cpp" />
+    <ClCompile Include="DX12\ImageProcessor.cpp" />
+    <ClCompile Include="DX12\ImageRenderer.cpp" />
+    <ClCompile Include="DX12\ImgLoader.cpp" />
+    <ClCompile Include="DX12\Imgui.cpp" />
+    <ClCompile Include="DX12\ImGuiHelper.cpp" />
+    <ClCompile Include="DX12\Misc.cpp" />
+    <ClCompile Include="DX12\PostProcCS.cpp" />
+    <ClCompile Include="DX12\PostProcPS.cpp" />
+    <ClCompile Include="DX12\ResourceViewHeaps.cpp" />
+    <ClCompile Include="DX12\Sample.cpp" />
+    <ClCompile Include="DX12\SampleRenderer.cpp" />
+    <ClCompile Include="DX12\SaveTexture.cpp" />
+    <ClCompile Include="DX12\ShaderCompiler.cpp" />
+    <ClCompile Include="DX12\ShaderCompilerCache.cpp" />
+    <ClCompile Include="DX12\ShaderCompilerHelper.cpp" />
+    <ClCompile Include="DX12\StaticBufferPool.cpp" />
+    <ClCompile Include="DX12\StaticConstantBufferPool.cpp" />
+    <ClCompile Include="DX12\stdafx.cpp" />
+    <ClCompile Include="DX12\SwapChain.cpp" />
+    <ClCompile Include="DX12\Texture.cpp" />
+    <ClCompile Include="DX12\ThreadPool.cpp" />
+    <ClCompile Include="DX12\UploadHeap.cpp" />
+    <ClCompile Include="DX12\UploadHeapSimple.cpp" />
+    <ClCompile Include="DX12\UserMarkers.cpp" />
+    <ClCompile Include="DX12\WICLoader.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DX12\Async.h" />
+    <ClInclude Include="DX12\AsyncCache.h" />
+    <ClInclude Include="DX12\CommandListRing.h" />
+    <ClInclude Include="DX12\ComputeHistogram.h" />
+    <ClInclude Include="DX12\DDSLoader.h" />
+    <ClInclude Include="DX12\Device.h" />
+    <ClInclude Include="DX12\DXCHelper.h" />
+    <ClInclude Include="DX12\DxgiFormatHelper.h" />
+    <ClInclude Include="DX12\DynamicBufferRing.h" />
+    <ClInclude Include="DX12\Error.h" />
+    <ClInclude Include="DX12\Fence.h" />
+    <ClInclude Include="DX12\FrameworkWindows.h" />
+    <ClInclude Include="DX12\FreesyncHDR.h" />
+    <ClInclude Include="DX12\GPUTimestamps.h" />
+    <ClInclude Include="DX12\Hash.h" />
+    <ClInclude Include="DX12\Helper.h" />
+    <ClInclude Include="DX12\ImageProcessor.h" />
+    <ClInclude Include="DX12\ImageRenderer.h" />
+    <ClInclude Include="DX12\ImgLoader.h" />
+    <ClInclude Include="DX12\Imgui.h" />
+    <ClInclude Include="DX12\ImGuiHelper.h" />
+    <ClInclude Include="DX12\Misc.h" />
+    <ClInclude Include="DX12\PostProcCS.h" />
+    <ClInclude Include="DX12\PostProcPS.h" />
+    <ClInclude Include="DX12\ResourceViewHeaps.h" />
+    <ClInclude Include="DX12\Ring.h" />
+    <ClInclude Include="DX12\Sample.h" />
+    <ClInclude Include="DX12\SampleRenderer.h" />
+    <ClInclude Include="DX12\SaveTexture.h" />
+    <ClInclude Include="DX12\ShaderCompiler.h" />
+    <ClInclude Include="DX12\ShaderCompilerCache.h" />
+    <ClInclude Include="DX12\ShaderCompilerHelper.h" />
+    <ClInclude Include="DX12\StaticBufferPool.h" />
+    <ClInclude Include="DX12\StaticConstantBufferPool.h" />
+    <ClInclude Include="DX12\stdafx.h" />
+    <ClInclude Include="DX12\SwapChain.h" />
+    <ClInclude Include="DX12\Texture.h" />
+    <ClInclude Include="DX12\threadpool.h" />
+    <ClInclude Include="DX12\UploadHeap.h" />
+    <ClInclude Include="DX12\UploadHeapSimple.h" />
+    <ClInclude Include="DX12\UserMarkers.h" />
+    <ClInclude Include="DX12\WICLoader.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DX12\ImageProcessor.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="DX12\RenderImage.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="SampleSettings.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DX12\ComputeHistogram.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

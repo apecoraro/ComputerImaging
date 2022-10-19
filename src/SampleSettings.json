@@ -1,0 +1,10 @@
+{
+  "globals": {
+    "benchmark": false,
+    "timeStep": 1,
+    "CpuValidationLayerEnabled": false,
+    "GpuValidationLayerEnabled": false,
+    "width": 960,
+    "height": 540
+  }
+}

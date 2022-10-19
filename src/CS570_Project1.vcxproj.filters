@@ -1,0 +1,290 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Cauldron">
+      <UniqueIdentifier>{c98474e2-f399-402a-838d-876adda4a5f6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Cauldron">
+      <UniqueIdentifier>{13de6f55-e402-46ef-9bfd-7863c9f7847e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Config">
+      <UniqueIdentifier>{1f6e5ee7-7ec4-4d46-ac2e-b37c3de2e831}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="DX12\ImageProcessor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\ImageRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\Sample.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\SampleRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\Async.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\CommandListRing.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\Device.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\DXCHelper.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\DynamicBufferRing.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\Fence.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\FrameworkWindows.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\FreesyncHDR.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\GPUTimestamps.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\Hash.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\Helper.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\Imgui.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\ImGuiHelper.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\Misc.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\ResourceViewHeaps.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\SaveTexture.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\ShaderCompiler.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\ShaderCompilerCache.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\ShaderCompilerHelper.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\StaticBufferPool.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\StaticConstantBufferPool.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\Texture.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\SwapChain.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\ThreadPool.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\UploadHeap.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\UploadHeapSimple.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\UserMarkers.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\ImgLoader.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\PostProcCS.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\PostProcPS.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\Error.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\WICLoader.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\DDSLoader.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\DxgiFormatHelper.cpp">
+      <Filter>Source Files\Cauldron</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\ComputeHistogram.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="DX12\ImageProcessor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\ImageRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\Sample.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\SampleRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\AsyncCache.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\Async.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\CommandListRing.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\Device.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\DXCHelper.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\DynamicBufferRing.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\Fence.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\FrameworkWindows.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\FreesyncHDR.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\GPUTimestamps.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\Hash.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\Helper.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\Imgui.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\ImGuiHelper.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\Misc.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\ResourceViewHeaps.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\SaveTexture.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\ShaderCompiler.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\ShaderCompilerCache.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\ShaderCompilerHelper.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\StaticBufferPool.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\StaticConstantBufferPool.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\SwapChain.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\Texture.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\threadpool.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\UploadHeap.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\UploadHeapSimple.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\UserMarkers.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\ImgLoader.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\Ring.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\PostProcCS.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\PostProcPS.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\Error.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\DDSLoader.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\WICLoader.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\DxgiFormatHelper.h">
+      <Filter>Header Files\Cauldron</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\ComputeHistogram.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DX12\RenderImage.hlsl">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="DX12\ImageProcessor.hlsl">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="SampleSettings.json">
+      <Filter>Config</Filter>
+    </None>
+    <None Include="DX12\ComputeHistogram.hlsl">
+      <Filter>Source Files</Filter>
+    </None>
+  </ItemGroup>
+</Project>
