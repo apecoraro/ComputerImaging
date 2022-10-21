@@ -2,7 +2,7 @@
   "globals": {
     "benchmark": false,
     "timeStep": 1,
-    "CpuValidationLayerEnabled": false,
+    "CpuValidationLayerEnabled": true,
     "GpuValidationLayerEnabled": false,
     "width": 960,
     "height": 540

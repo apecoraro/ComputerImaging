@@ -128,7 +128,7 @@ void Sample::OnCreate(HWND hWnd)
 
     ImGUI_Init((void *)hWnd);
 
-    std::string inputImage1 = m_mediaFiles[0];
+    std::string inputImage1 = m_mediaFiles[14];//m_mediaFiles[0];
     std::string inputImage2 = m_mediaFiles.size() == 1 ? inputImage1 : m_mediaFiles[1];
     m_node->OnCreate(&m_device, inputImage1, inputImage2, "Log", &m_swapChain);
 }
