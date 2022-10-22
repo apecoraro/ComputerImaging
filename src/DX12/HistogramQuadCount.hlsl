@@ -1,13 +1,14 @@
 cbuffer Constants : register(b0)
 {
+    uint2 g_inputSize;
     uint2 g_outputSize;
 }
 
 uint ComputeBinNumber(float red)
 {
-    float numberOfBins = 7.999;
+    float numberOfBins = 8.0;
 
-    return uint(numberOfBins * red);
+    return min(uint(numberOfBins * red), 7);
 }
 
 RWTexture2D<uint2> outputTex : register(u0);
@@ -20,7 +21,6 @@ void QuadCount(uint3 dispatchId : SV_DispatchThreadID)
         return;
 
     int2 evenOddPixel = dispatchId.xy % 2;
-    
     int3 basePixelIndex = int3(dispatchId.xy - evenOddPixel, 0);
     
     uint binNumber1 = (evenOddPixel.y * 4) + (evenOddPixel.x * 2);
@@ -34,22 +34,25 @@ void QuadCount(uint3 dispatchId : SV_DispatchThreadID)
     if (binNumber2 == redBit)
         binCounts.g += 1;
     
-    redBit = ComputeBinNumber(inputTex.Load(basePixelIndex + int3(1, 0, 0)).r);
-    if (binNumber1 == redBit)
+    int3 offsetPixelIndex = basePixelIndex + int3(1, 0, 0);
+    redBit = ComputeBinNumber(inputTex.Load(offsetPixelIndex).r);
+    if (binNumber1 == redBit && offsetPixelIndex.x < g_inputSize.x)
         binCounts.r += 1;
-    if (binNumber2 == redBit)
+    if (binNumber2 == redBit && offsetPixelIndex.x < g_inputSize.x)
         binCounts.g += 1;
     
-    redBit = ComputeBinNumber(inputTex.Load(basePixelIndex + int3(0, 1, 0)).r);
-    if (binNumber1 == redBit)
+    offsetPixelIndex = basePixelIndex + int3(0, 1, 0);
+    redBit = ComputeBinNumber(inputTex.Load(offsetPixelIndex).r);
+    if (binNumber1 == redBit && offsetPixelIndex.y < g_inputSize.y)
         binCounts.r += 1;
-    if (binNumber2 == redBit)
+    if (binNumber2 == redBit && offsetPixelIndex.y < g_inputSize.y)
         binCounts.g += 1;
     
-    redBit = ComputeBinNumber(inputTex.Load(basePixelIndex + int3(1, 1, 0)).r);
-    if (binNumber1 == redBit)
+    offsetPixelIndex = basePixelIndex + int3(1, 1, 0);
+    redBit = ComputeBinNumber(inputTex.Load(offsetPixelIndex).r);
+    if (binNumber1 == redBit && offsetPixelIndex.x < g_inputSize.x && offsetPixelIndex.y < g_inputSize.y)
         binCounts.r += 1;
-    if (binNumber2 == redBit)
+    if (binNumber2 == redBit && offsetPixelIndex.x < g_inputSize.x && offsetPixelIndex.y < g_inputSize.y)
         binCounts.g += 1;
 
     outputTex[dispatchId.xy] = binCounts;

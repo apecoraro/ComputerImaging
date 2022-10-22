@@ -96,6 +96,8 @@ namespace CS570
 
         struct Constants
         {
+            uint32_t inputWidth = 0u;
+            uint32_t inputHeight = 0u;
             uint32_t outputWidth = 0u;
             uint32_t outputHeight = 0u;
         };

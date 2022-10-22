@@ -36,6 +36,8 @@ void ComputeHistogram::OnCreate(
     m_pResourceViewHeaps->AllocCBV_SRV_UAVDescriptor(1, &m_inputTextureSrv);
 
     input.CreateSRV(0, &m_inputTextureSrv);
+    m_constants.inputWidth = input.GetWidth();
+    m_constants.inputHeight = input.GetHeight();
 
     CreateOutputResource(input);
 }
@@ -199,10 +201,14 @@ void ComputeHistogram::CreateOutputResource(CAULDRON_DX12::Texture& input)
     m_pResourceViewHeaps->AllocCBV_SRV_UAVDescriptor(1, &m_outputSrv1);
     m_histogramOutput1.CreateSRV(0, &m_outputSrv1);
 
+    histWidth >>= 1;
+    histHeight >>= 1;
+    extraWidth = histWidth % 2;
+    extraHeight = histHeight % 2;
     CD3DX12_RESOURCE_DESC outputDesc2 =
         CD3DX12_RESOURCE_DESC::Tex2D(
             DXGI_FORMAT_R16G16_UINT,
-            histWidth >> 1, histHeight >> 1, // 1/4 the size of output1.
+            histWidth + extraWidth, histHeight + extraHeight, // 1/4 the size of output1, but needs to be multiple of 2.
             1, // array size
             1, // mip size
             1, // sample count
@@ -329,14 +335,15 @@ void ComputeHistogram::Draw(ID3D12GraphicsCommandList* pCommandList)
         auto inputSrv = m_outputSrv1.GetGPU();
         auto pInputResource = &m_histogramOutput1;
 
+        m_constants.inputWidth = pInputResource->GetWidth();
+        m_constants.inputHeight = pInputResource->GetHeight();
+
         m_constants.outputWidth = pOutputResource->GetWidth();
         m_constants.outputHeight = pOutputResource->GetHeight();
 
         while (true)
         {
             m_pConstantBufferRing->AllocConstantBuffer(constantsSize, (void**)&pConstMem, &cbHandle);
-            m_constants.outputWidth = max(m_constants.outputWidth, 2);
-            m_constants.outputHeight = max(m_constants.outputHeight, 2);
             memcpy(pConstMem, &m_constants, constantsSize);
 
             pCommandList->SetComputeRootConstantBufferView(0, cbHandle);
@@ -360,14 +367,18 @@ void ComputeHistogram::Draw(ID3D12GraphicsCommandList* pCommandList)
             m_histogramOutput1State = m_histogramOutput1State == D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE ? D3D12_RESOURCE_STATE_UNORDERED_ACCESS : D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
             m_histogramOutput2State = m_histogramOutput2State == D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE ? D3D12_RESOURCE_STATE_UNORDERED_ACCESS : D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE;
 
-            m_constants.outputWidth >>= 1;
-            m_constants.outputHeight >>= 1;
-            if (m_constants.outputWidth == 1 && m_constants.outputHeight == 1)
+            if (m_constants.outputWidth == 2 && m_constants.outputHeight == 2)
                 break;
+
+            m_constants.inputWidth = m_constants.outputWidth;
+            m_constants.inputHeight = m_constants.outputHeight;
+
+            m_constants.outputWidth = max(m_constants.outputWidth >> 1, 2);
+            m_constants.outputHeight = max(m_constants.outputHeight >> 1, 2);
 
             auto pTmp = pOutputResource;
             pOutputResource = pInputResource;
-            pInputResource = pOutputResource;
+            pInputResource = pTmp;
 
             auto tmpUav = outputUav;
             outputUav = inputUav;
@@ -375,7 +386,7 @@ void ComputeHistogram::Draw(ID3D12GraphicsCommandList* pCommandList)
 
             auto tmpSrv = outputSrv;
             outputSrv = inputSrv;
-            inputSrv = outputSrv;
+            inputSrv = tmpSrv;
         }
 
         if (memcmp(&outputSrv, &m_outputSrv1.GetGPU(), sizeof(outputSrv)) == 0)
