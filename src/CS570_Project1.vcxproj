@@ -240,7 +240,12 @@
     <None Include="SampleSettings.json" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="DX12\ComputeHistogram.hlsl">
+    <None Include="DX12\HistogramQuadCount.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DX12\HistogramSumQuads.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

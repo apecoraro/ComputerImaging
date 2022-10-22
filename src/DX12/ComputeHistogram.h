@@ -28,7 +28,7 @@
 
 namespace CS570
 {
-    class ComputeHistogram
+    class QuadCount
     {
     public:
         void OnCreate(
@@ -38,18 +38,61 @@ namespace CS570
             CAULDRON_DX12::ResourceViewHeaps *pResourceViewHeaps,
             CAULDRON_DX12::DynamicBufferRing *pConstantBufferRing);
 
-        void SetInput(CAULDRON_DX12::Texture& input);
+        void OnDestroy();
 
+        void Setup(ID3D12GraphicsCommandList* pCommandList);
+        void Draw(ID3D12GraphicsCommandList* pCommandList, uint32_t outputWidth, uint32_t outputHeight);
+
+    private:
+        ID3D12RootSignature* m_pComputeRootSignature = nullptr;
+        ID3D12PipelineState* m_pQuadCountPipeline = nullptr;
+    };
+
+    class SumQuads
+    {
+    public:
+        void OnCreate(
+            CAULDRON_DX12::Texture& input,
+            CAULDRON_DX12::Device *pDevice,
+            CAULDRON_DX12::UploadHeap *pUploadHeap,
+            CAULDRON_DX12::ResourceViewHeaps *pResourceViewHeaps,
+            CAULDRON_DX12::DynamicBufferRing *pConstantBufferRing);
+
+        void OnDestroy();
+
+        void Setup(ID3D12GraphicsCommandList* pCommandList);
+        void Draw(ID3D12GraphicsCommandList* pCommandList, uint32_t outputWidth, uint32_t outputHeight);
+
+    private:
+        ID3D12RootSignature* m_pComputeRootSignature = nullptr;
+        ID3D12PipelineState* m_pSumCountsPipeline = nullptr;
+    };
+
+    class ComputeHistogram
+    {
+    public:
+        void OnCreate(
+            CAULDRON_DX12::Texture& input,
+            CAULDRON_DX12::Device *pDevice,
+            CAULDRON_DX12::UploadHeap *pUploadHeap,
+            CAULDRON_DX12::ResourceViewHeaps *pResourceViewHeaps,
+            CAULDRON_DX12::DynamicBufferRing *pConstantBufferRing);
         void OnDestroy();
 
         void Draw(ID3D12GraphicsCommandList *pCommandList);
 
         CAULDRON_DX12::CBV_SRV_UAV& GetOutputSrv() { return *m_pCurrentOutputSrv; }
 
+        void SetInput(CAULDRON_DX12::Texture& input);
+
     private:
         void CreateOutputResource(CAULDRON_DX12::Texture& input);
+
         CAULDRON_DX12::Texture m_histogramOutput1;
+        D3D12_RESOURCE_STATES m_histogramOutput1State;
+
         CAULDRON_DX12::Texture m_histogramOutput2;
+        D3D12_RESOURCE_STATES m_histogramOutput2State;
 
         struct Constants
         {
@@ -59,7 +102,7 @@ namespace CS570
 
         Constants m_constants;
 
-        CAULDRON_DX12::Device *m_pDevice = nullptr;
+        CAULDRON_DX12::Device* m_pDevice = nullptr;
 
         CAULDRON_DX12::CBV_SRV_UAV m_constBuffer; // dimension
         CAULDRON_DX12::CBV_SRV_UAV m_inputTextureSrv; //src
@@ -70,10 +113,10 @@ namespace CS570
         CAULDRON_DX12::CBV_SRV_UAV m_outputSrv2;
         CAULDRON_DX12::CBV_SRV_UAV* m_pCurrentOutputSrv = nullptr;
 
-        CAULDRON_DX12::ResourceViewHeaps *m_pResourceViewHeaps = nullptr;
-        CAULDRON_DX12::DynamicBufferRing *m_pConstantBufferRing = nullptr;
-        ID3D12RootSignature* m_pComputeRootSignature = nullptr;
-        ID3D12PipelineState* m_pQuadCountPipeline = nullptr;
-        ID3D12PipelineState* m_pSumCountsPipeline = nullptr;
+        CAULDRON_DX12::ResourceViewHeaps* m_pResourceViewHeaps = nullptr;
+        CAULDRON_DX12::DynamicBufferRing* m_pConstantBufferRing = nullptr;
+
+        QuadCount m_quadCount;
+        SumQuads m_sumQuads;
     };
 }

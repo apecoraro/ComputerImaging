@@ -597,7 +597,12 @@ void SampleRenderer::OnRender(State *pState, CAULDRON_DX12::SwapChain *pSwapChai
     m_gpuTimer.GetTimeStamp(pCmdLst1, "Begin Frame");
 
     //m_pCurrentOperation->Draw(pCmdLst1);
-    m_computeHistogram.Draw(pCmdLst1);
+    static bool oneTime = true;
+    if (oneTime)
+    {
+        oneTime = false;
+        m_computeHistogram.Draw(pCmdLst1);
+    }
 
     CD3DX12_RESOURCE_BARRIER barriers[] = {
         CD3DX12_RESOURCE_BARRIER::Transition(

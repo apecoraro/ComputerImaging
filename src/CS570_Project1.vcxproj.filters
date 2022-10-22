@@ -283,7 +283,10 @@
     <None Include="SampleSettings.json">
       <Filter>Config</Filter>
     </None>
-    <None Include="DX12\ComputeHistogram.hlsl">
+    <None Include="DX12\HistogramQuadCount.hlsl">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="DX12\HistogramSumQuads.hlsl">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>

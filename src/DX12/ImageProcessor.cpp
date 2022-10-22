@@ -36,7 +36,7 @@ void ImageProcessor::OnCreate(
         "DX12/ImageProcessor.hlsl",
         &defines,
         shaderEntryFunc.c_str(),
-        "-T cs_6_0 /Zi /Zss",
+        "-T cs_6_0 /Zi /Zss -Od -Qembed_debug",
         &shaderByteCode);
 
     {
