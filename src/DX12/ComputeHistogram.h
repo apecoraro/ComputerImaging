@@ -31,41 +31,62 @@ namespace CS570
     class QuadCount
     {
     public:
-        void OnCreate(
-            CAULDRON_DX12::Texture& input,
-            CAULDRON_DX12::Device *pDevice,
-            CAULDRON_DX12::UploadHeap *pUploadHeap,
-            CAULDRON_DX12::ResourceViewHeaps *pResourceViewHeaps,
-            CAULDRON_DX12::DynamicBufferRing *pConstantBufferRing);
+        void OnCreate(ID3D12RootSignature* pRootSignature, CAULDRON_DX12::Device* pDevice);
 
         void OnDestroy();
 
-        void Setup(ID3D12GraphicsCommandList* pCommandList);
+        void Setup(ID3D12GraphicsCommandList* pCommandList, ID3D12RootSignature* pRootSignature);
         void Draw(ID3D12GraphicsCommandList* pCommandList, uint32_t outputWidth, uint32_t outputHeight);
 
     private:
-        ID3D12RootSignature* m_pComputeRootSignature = nullptr;
-        ID3D12PipelineState* m_pQuadCountPipeline = nullptr;
+        ID3D12PipelineState* m_pPipeline = nullptr;
     };
 
     class SumQuads
     {
     public:
-        void OnCreate(
-            CAULDRON_DX12::Texture& input,
-            CAULDRON_DX12::Device *pDevice,
-            CAULDRON_DX12::UploadHeap *pUploadHeap,
-            CAULDRON_DX12::ResourceViewHeaps *pResourceViewHeaps,
-            CAULDRON_DX12::DynamicBufferRing *pConstantBufferRing);
+        void OnCreate(ID3D12RootSignature* pRootSignature, CAULDRON_DX12::Device* pDevice);
 
         void OnDestroy();
 
-        void Setup(ID3D12GraphicsCommandList* pCommandList);
+        void Setup(ID3D12GraphicsCommandList* pCommandList, ID3D12RootSignature* pRootSignature);
         void Draw(ID3D12GraphicsCommandList* pCommandList, uint32_t outputWidth, uint32_t outputHeight);
 
     private:
-        ID3D12RootSignature* m_pComputeRootSignature = nullptr;
-        ID3D12PipelineState* m_pSumCountsPipeline = nullptr;
+        ID3D12PipelineState* m_pPipeline = nullptr;
+    };
+
+    class CreateLUT
+    {
+    public:
+        void OnCreate(
+            ID3D12RootSignature* pRootSignature,
+            const CAULDRON_DX12::Texture& input,
+            uint32_t binCount,
+            CAULDRON_DX12::Device* pDevice,
+            CAULDRON_DX12::ResourceViewHeaps* pResourceViewHeaps);
+
+        void OnDestroy();
+
+        void Draw(
+            ID3D12GraphicsCommandList* pCommandList,
+            CAULDRON_DX12::DynamicBufferRing* pConstantBufferRing,
+            ID3D12RootSignature* pRootSignature,
+            CAULDRON_DX12::CBV_SRV_UAV* pInputSrv);
+
+        CAULDRON_DX12::CBV_SRV_UAV& GetOutputSrv() { return m_outputSrv; }
+    private:
+        ID3D12PipelineState* m_pPipeline = nullptr;
+        struct LutConstants
+        {
+            uint32_t outputSize;
+            uint32_t pixelCount;
+        };
+        LutConstants m_lutConstants;
+
+        CAULDRON_DX12::Texture m_outputLUT;
+        CAULDRON_DX12::CBV_SRV_UAV m_outputUav;
+        CAULDRON_DX12::CBV_SRV_UAV m_outputSrv;
     };
 
     class ComputeHistogram
@@ -81,12 +102,14 @@ namespace CS570
 
         void Draw(ID3D12GraphicsCommandList *pCommandList);
 
-        CAULDRON_DX12::CBV_SRV_UAV& GetOutputSrv() { return *m_pCurrentOutputSrv; }
+        CAULDRON_DX12::CBV_SRV_UAV& GetOutputSrv() { return m_createLUT.GetOutputSrv(); }
 
         void SetInput(CAULDRON_DX12::Texture& input);
 
     private:
         void CreateOutputResource(CAULDRON_DX12::Texture& input);
+
+        ID3D12RootSignature* m_pRootSignature = nullptr;
 
         CAULDRON_DX12::Texture m_histogramOutput1;
         D3D12_RESOURCE_STATES m_histogramOutput1State;
@@ -120,5 +143,6 @@ namespace CS570
 
         QuadCount m_quadCount;
         SumQuads m_sumQuads;
+        CreateLUT m_createLUT;
     };
 }

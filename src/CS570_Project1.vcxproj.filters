@@ -289,10 +289,8 @@
     <None Include="DX12\HistogramSumQuads.hlsl">
       <Filter>Source Files</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="DX12\HistogramCreateLUT.hlsl">
+    <None Include="DX12\HistogramCreateLUT.hlsl">
       <Filter>Source Files</Filter>
-    </FxCompile>
+    </None>
   </ItemGroup>
 </Project>

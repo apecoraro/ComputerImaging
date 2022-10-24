@@ -28,27 +28,6 @@ void ComputeHistogram::OnCreate(
     m_pResourceViewHeaps = pResourceViewHeaps;
     m_pConstantBufferRing = pConstantBufferRing;
 
-    m_quadCount.OnCreate(input, pDevice, pUploadHeap, pResourceViewHeaps, pConstantBufferRing);
-
-    m_sumQuads.OnCreate(input, pDevice, pUploadHeap, pResourceViewHeaps, pConstantBufferRing);
-
-    m_pResourceViewHeaps->AllocCBV_SRV_UAVDescriptor(1, &m_constBuffer);
-    m_pResourceViewHeaps->AllocCBV_SRV_UAVDescriptor(1, &m_inputTextureSrv);
-
-    input.CreateSRV(0, &m_inputTextureSrv);
-    m_constants.inputWidth = input.GetWidth();
-    m_constants.inputHeight = input.GetHeight();
-
-    CreateOutputResource(input);
-}
-
-void QuadCount::OnCreate(
-    Texture& input,
-    Device* pDevice,
-    UploadHeap* pUploadHeap,
-    ResourceViewHeaps* pResourceViewHeaps,
-    DynamicBufferRing* pConstantBufferRing)
-{
     {
         int parameterCount = 0;
         CD3DX12_ROOT_PARAMETER rtSlot[3];
@@ -78,15 +57,33 @@ void QuadCount::OnCreate(
             &descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &pOutBlob, &pErrorBlob));
         ThrowIfFailed(
             pDevice->GetDevice()->CreateRootSignature(
-                0, pOutBlob->GetBufferPointer(), pOutBlob->GetBufferSize(), IID_PPV_ARGS(&m_pComputeRootSignature))
+                0, pOutBlob->GetBufferPointer(), pOutBlob->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature))
         );
-        CAULDRON_DX12::SetName(m_pComputeRootSignature, std::string("ComputeHistogram::QuadCount"));
+        CAULDRON_DX12::SetName(m_pRootSignature, std::string("ComputeHistogram::QuadCount"));
 
         pOutBlob->Release();
         if (pErrorBlob)
             pErrorBlob->Release();
     }
 
+    m_quadCount.OnCreate(m_pRootSignature, pDevice);
+
+    m_sumQuads.OnCreate(m_pRootSignature, pDevice);
+
+    m_createLUT.OnCreate(m_pRootSignature, input, 8, pDevice, pResourceViewHeaps);
+
+    m_pResourceViewHeaps->AllocCBV_SRV_UAVDescriptor(1, &m_constBuffer);
+    m_pResourceViewHeaps->AllocCBV_SRV_UAVDescriptor(1, &m_inputTextureSrv);
+
+    input.CreateSRV(0, &m_inputTextureSrv);
+    m_constants.inputWidth = input.GetWidth();
+    m_constants.inputHeight = input.GetHeight();
+
+    CreateOutputResource(input);
+}
+
+void QuadCount::OnCreate(ID3D12RootSignature* pRootSignature, Device* pDevice)
+{
     D3D12_SHADER_BYTECODE shaderByteCode = {};
     DefineList defines;
     CAULDRON_DX12::CompileShaderFromFile(
@@ -99,57 +96,14 @@ void QuadCount::OnCreate(
     D3D12_COMPUTE_PIPELINE_STATE_DESC descPso = {};
     descPso.CS = shaderByteCode;
     descPso.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-    descPso.pRootSignature = m_pComputeRootSignature;
+    descPso.pRootSignature = pRootSignature;
     descPso.NodeMask = 0;
 
-    ThrowIfFailed(pDevice->GetDevice()->CreateComputePipelineState(&descPso, IID_PPV_ARGS(&m_pQuadCountPipeline)));
+    ThrowIfFailed(pDevice->GetDevice()->CreateComputePipelineState(&descPso, IID_PPV_ARGS(&m_pPipeline)));
 }
 
-void SumQuads::OnCreate(
-    Texture& input,
-    Device* pDevice,
-    UploadHeap* pUploadHeap,
-    ResourceViewHeaps* pResourceViewHeaps,
-    DynamicBufferRing* pConstantBufferRing)
+void SumQuads::OnCreate(ID3D12RootSignature* pRootSignature, Device* pDevice)
 {
-    {
-        int parameterCount = 0;
-        CD3DX12_ROOT_PARAMETER rtSlot[3];
-
-        rtSlot[parameterCount++].InitAsConstantBufferView(0, 0, D3D12_SHADER_VISIBILITY_ALL);
-
-        CD3DX12_DESCRIPTOR_RANGE uavDescRange = {};
-        uavDescRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_UAV, 1, 0);
-        rtSlot[parameterCount++].InitAsDescriptorTable(1, &uavDescRange, D3D12_SHADER_VISIBILITY_ALL);
-
-        CD3DX12_DESCRIPTOR_RANGE srvDescRange = {};
-        srvDescRange.Init(D3D12_DESCRIPTOR_RANGE_TYPE_SRV, 1, 0);
-        rtSlot[parameterCount++].InitAsDescriptorTable(1, &srvDescRange, D3D12_SHADER_VISIBILITY_ALL);
-
-        CD3DX12_ROOT_SIGNATURE_DESC descRootSignature = CD3DX12_ROOT_SIGNATURE_DESC();
-        descRootSignature.NumParameters = parameterCount;
-        descRootSignature.pParameters = rtSlot;
-        descRootSignature.NumStaticSamplers = 0;
-        descRootSignature.pStaticSamplers = nullptr;
-
-        descRootSignature.Flags = D3D12_ROOT_SIGNATURE_FLAG_NONE;
-
-        ID3DBlob* pOutBlob = nullptr;
-        ID3DBlob* pErrorBlob = nullptr;
-
-        ThrowIfFailed(D3D12SerializeRootSignature(
-            &descRootSignature, D3D_ROOT_SIGNATURE_VERSION_1, &pOutBlob, &pErrorBlob));
-        ThrowIfFailed(
-            pDevice->GetDevice()->CreateRootSignature(
-                0, pOutBlob->GetBufferPointer(), pOutBlob->GetBufferSize(), IID_PPV_ARGS(&m_pComputeRootSignature))
-        );
-        CAULDRON_DX12::SetName(m_pComputeRootSignature, std::string("ComputeHistogram::QuadCount"));
-
-        pOutBlob->Release();
-        if (pErrorBlob)
-            pErrorBlob->Release();
-    }
-
     D3D12_SHADER_BYTECODE shaderByteCode = {};
     DefineList defines;
     shaderByteCode = {};
@@ -163,19 +117,65 @@ void SumQuads::OnCreate(
     D3D12_COMPUTE_PIPELINE_STATE_DESC descPso = {};
     descPso.CS = shaderByteCode;
     descPso.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
-    descPso.pRootSignature = m_pComputeRootSignature;
+    descPso.pRootSignature = pRootSignature;
     descPso.NodeMask = 0;
 
-    ThrowIfFailed(pDevice->GetDevice()->CreateComputePipelineState(&descPso, IID_PPV_ARGS(&m_pSumCountsPipeline)));
+    ThrowIfFailed(pDevice->GetDevice()->CreateComputePipelineState(&descPso, IID_PPV_ARGS(&m_pPipeline)));
 }
 
-void ComputeHistogram::SetInput(CAULDRON_DX12::Texture& input)
+void CreateLUT::OnCreate(
+    ID3D12RootSignature* pRootSignature,
+    const Texture& input,
+    uint32_t binCount,
+    Device* pDevice,
+    ResourceViewHeaps* pResourceViewHeaps)
+{
+    D3D12_SHADER_BYTECODE shaderByteCode = {};
+    DefineList defines;
+    CAULDRON_DX12::CompileShaderFromFile(
+        "DX12/HistogramCreateLUT.hlsl",
+        &defines,
+        "CreateLUT",
+        "-T cs_6_0 /Zi /Zss -Od -Qembed_debug",
+        &shaderByteCode);
+
+    D3D12_COMPUTE_PIPELINE_STATE_DESC descPso = {};
+    descPso.CS = shaderByteCode;
+    descPso.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
+    descPso.pRootSignature = pRootSignature;
+    descPso.NodeMask = 0;
+
+    ThrowIfFailed(pDevice->GetDevice()->CreateComputePipelineState(&descPso, IID_PPV_ARGS(&m_pPipeline)));
+
+    m_lutConstants.outputSize = binCount;
+    m_lutConstants.pixelCount = input.GetWidth() * input.GetHeight();
+
+    CD3DX12_RESOURCE_DESC outputDesc =
+        CD3DX12_RESOURCE_DESC::Tex2D(
+            DXGI_FORMAT_R32_UINT,
+            binCount, 1,
+            1, // array size
+            1, // mip size
+            1, // sample count
+            0, // sample quality
+            D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
+
+    m_outputLUT.InitRenderTarget(pDevice, "HistogramLUT", &outputDesc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+    pResourceViewHeaps->AllocCBV_SRV_UAVDescriptor(1, &m_outputUav);
+    m_outputLUT.CreateUAV(0, &m_outputUav);
+
+    pResourceViewHeaps->AllocCBV_SRV_UAVDescriptor(1, &m_outputSrv);
+    m_outputLUT.CreateSRV(0, &m_outputSrv);
+}
+
+void ComputeHistogram::SetInput(Texture& input)
 {
     m_pResourceViewHeaps->AllocCBV_SRV_UAVDescriptor(1, &m_inputTextureSrv);
     input.CreateSRV(0, &m_inputTextureSrv);
 }
 
-void ComputeHistogram::CreateOutputResource(CAULDRON_DX12::Texture& input)
+void ComputeHistogram::CreateOutputResource(Texture& input)
 {
     // Histogram count requires multiple of 2 dimensions.
     uint32_t extraWidth = input.GetWidth() % 2;
@@ -231,41 +231,46 @@ void ComputeHistogram::OnDestroy()
 
     m_quadCount.OnDestroy();
     m_sumQuads.OnDestroy();
+
+    if (m_pRootSignature != nullptr)
+    {
+        m_pRootSignature->Release();
+        m_pRootSignature = nullptr;
+    }
 }
 
 void QuadCount::OnDestroy()
 {
-    if (m_pQuadCountPipeline != nullptr)
+    if (m_pPipeline != nullptr)
     {
-        m_pQuadCountPipeline->Release();
-        m_pQuadCountPipeline = nullptr;
-    }
-
-    if (m_pComputeRootSignature != nullptr)
-    {
-        m_pComputeRootSignature->Release();
-        m_pComputeRootSignature = nullptr;
+        m_pPipeline->Release();
+        m_pPipeline = nullptr;
     }
 }
 
 void SumQuads::OnDestroy()
 {
-    if (m_pSumCountsPipeline != nullptr)
+    if (m_pPipeline != nullptr)
     {
-        m_pSumCountsPipeline->Release();
-        m_pSumCountsPipeline = nullptr;
+        m_pPipeline->Release();
+        m_pPipeline = nullptr;
     }
+}
 
-    if (m_pComputeRootSignature != nullptr)
+void CreateLUT::OnDestroy()
+{
+    m_outputLUT.OnDestroy();
+
+    if (m_pPipeline != nullptr)
     {
-        m_pComputeRootSignature->Release();
-        m_pComputeRootSignature = nullptr;
+        m_pPipeline->Release();
+        m_pPipeline = nullptr;
     }
 }
 
 void ComputeHistogram::Draw(ID3D12GraphicsCommandList* pCommandList)
 {
-    CAULDRON_DX12::UserMarker marker(pCommandList, "ComputeHistogram");
+    UserMarker marker(pCommandList, "ComputeHistogram");
 
     CD3DX12_RESOURCE_BARRIER barriers[2] = {
         CD3DX12_RESOURCE_BARRIER::Transition(
@@ -281,7 +286,7 @@ void ComputeHistogram::Draw(ID3D12GraphicsCommandList* pCommandList)
         m_histogramOutput1State = D3D12_RESOURCE_STATE_UNORDERED_ACCESS;
     }
 
-    m_quadCount.Setup(pCommandList);
+    m_quadCount.Setup(pCommandList, m_pRootSignature);
 
     D3D12_GPU_VIRTUAL_ADDRESS cbHandle;
     uint32_t* pConstMem;
@@ -322,10 +327,11 @@ void ComputeHistogram::Draw(ID3D12GraphicsCommandList* pCommandList)
         pCommandList->ResourceBarrier(1, barriers);
 
 
+    CBV_SRV_UAV* pSumQuadsOutput = nullptr;
     // If the first output is already 2x2 then we can skip the reduction.
     if (m_constants.outputWidth > 2 || m_constants.outputHeight > 2)
     {
-        m_sumQuads.Setup(pCommandList);
+        m_sumQuads.Setup(pCommandList, m_pRootSignature);
 
         auto outputUav = m_outputUav2.GetGPU();
         auto outputSrv = m_outputSrv2.GetGPU();
@@ -390,38 +396,74 @@ void ComputeHistogram::Draw(ID3D12GraphicsCommandList* pCommandList)
         }
 
         if (memcmp(&outputSrv, &m_outputSrv1.GetGPU(), sizeof(outputSrv)) == 0)
-            m_pCurrentOutputSrv = &m_outputSrv1;
+            pSumQuadsOutput = &m_outputSrv1;
         else
-            m_pCurrentOutputSrv = &m_outputSrv2;
+            pSumQuadsOutput = &m_outputSrv2;
     }
     else
-        m_pCurrentOutputSrv = &m_outputSrv1;
+        pSumQuadsOutput = &m_outputSrv1;
+
+    m_createLUT.Draw(pCommandList, m_pConstantBufferRing, m_pRootSignature, pSumQuadsOutput);
 }
 
-void QuadCount::Setup(ID3D12GraphicsCommandList* pCommandList)
+void QuadCount::Setup(ID3D12GraphicsCommandList* pCommandList, ID3D12RootSignature* pRootSignature)
 {
-    pCommandList->SetPipelineState(m_pQuadCountPipeline);
-    pCommandList->SetComputeRootSignature(m_pComputeRootSignature);
+    pCommandList->SetPipelineState(m_pPipeline);
+    pCommandList->SetComputeRootSignature(pRootSignature);
 }
 
 void QuadCount::Draw(ID3D12GraphicsCommandList* pCommandList, uint32_t outputWidth, uint32_t outputHeight)
 {
-
     uint32_t dispatchX = (outputWidth + 7) / 8;
     uint32_t dispatchY = (outputHeight + 7) / 8;
     uint32_t dispatchZ = 1;
     pCommandList->Dispatch(dispatchX, dispatchY, dispatchZ);
 }
 
-void SumQuads::Setup(ID3D12GraphicsCommandList* pCommandList)
+void CreateLUT::Draw(
+    ID3D12GraphicsCommandList* pCommandList,
+    DynamicBufferRing* pConstantBufferRing,
+    ID3D12RootSignature* pRootSignature,
+    CBV_SRV_UAV* pInputSrv)
 {
-    pCommandList->SetPipelineState(m_pSumCountsPipeline);
-    pCommandList->SetComputeRootSignature(m_pComputeRootSignature);
+    CD3DX12_RESOURCE_BARRIER barrier =
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            m_outputLUT.GetResource(),
+            D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
+            D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
+
+    pCommandList->ResourceBarrier(1, &barrier);
+
+    D3D12_GPU_VIRTUAL_ADDRESS cbHandle;
+    uint32_t* pConstMem;
+    pConstantBufferRing->AllocConstantBuffer(sizeof(m_lutConstants), (void**)&pConstMem, &cbHandle);
+
+    memcpy(pConstMem, &m_lutConstants, sizeof(m_lutConstants));
+
+    pCommandList->SetComputeRootConstantBufferView(0, cbHandle);
+
+    pCommandList->SetComputeRootDescriptorTable(1, m_outputUav.GetGPU());
+    pCommandList->SetComputeRootDescriptorTable(2, pInputSrv->GetGPU());
+
+    uint32_t dispatchX = (m_lutConstants.outputSize + 7) / 8;
+    pCommandList->Dispatch(dispatchX, 1, 1);
+    barrier =
+        CD3DX12_RESOURCE_BARRIER::Transition(
+            m_outputLUT.GetResource(),
+            D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
+            D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+
+    pCommandList->ResourceBarrier(1, &barrier);
+}
+
+void SumQuads::Setup(ID3D12GraphicsCommandList* pCommandList, ID3D12RootSignature* pRootSignature)
+{
+    pCommandList->SetPipelineState(m_pPipeline);
+    pCommandList->SetComputeRootSignature(pRootSignature);
 }
 
 void SumQuads::Draw(ID3D12GraphicsCommandList* pCommandList, uint32_t outputWidth, uint32_t outputHeight)
 {
-
     uint32_t dispatchX = (outputWidth + 7) / 8;
     uint32_t dispatchY = (outputHeight + 7) / 8;
     uint32_t dispatchZ = 1;
