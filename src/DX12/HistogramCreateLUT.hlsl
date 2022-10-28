@@ -13,15 +13,14 @@ void CreateLUT(uint3 dispatchId : SV_DispatchThreadID)
         return;
  
     float oneOverPixelCount = 1.0/float(g_outputSizeAndPixelCount.y);
-    uint currentBin = 0;
     int3 inputIndex = int3(0, 0, 0);
     int3 indexOffsets[3] = { int3(1, 0, 0), int3(-1, 1, 0), int3(1, 0, 0) };
     float cumulativeOutput = 0.0f;
-    for (uint i = 0; i < dispatchId.x; ++i)
+    for (uint currentBin = 0; currentBin < dispatchId.x; ++currentBin)
     {
         uint2 binCounts = inputTex.Load(inputIndex);
 
-        inputIndex.x += indexOffsets[i];
+        inputIndex.x += indexOffsets[currentBin];
 
         float2 currentBinOutput = float2(binCounts * oneOverPixelCount);
 
@@ -29,10 +28,7 @@ void CreateLUT(uint3 dispatchId : SV_DispatchThreadID)
 
         outputTex[currentBin] = uint(cumulativeOutput);
 
-        ++currentBin;
-
         cumulativeOutput += currentBinOutput.y;
-
-        outputTex[currentBin] = uint(cumulativeOutput);
     }
+    outputTex[dispatchId.x] = uint(cumulativeOutput);
 }

@@ -21,7 +21,7 @@
 #include "ShaderCompilerCache.h"
 
 std::string s_shaderLibDir(".");
-std::string s_shaderCacheDir(".");
+std::string s_shaderCacheDir("ShaderCache");
 
 bool InitShaderCompilerCache(const std::string shaderLibDir, std::string shaderCacheDir)
 {
