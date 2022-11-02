@@ -3,7 +3,6 @@
 #include "Device.h"
 #include "DynamicBufferRing.h"
 #include "Error.h"
-#include "Imgui.h"
 #include "Helper.h"
 #include "ShaderCompiler.h"
 #include "ShaderCompilerHelper.h"
@@ -108,17 +107,6 @@ void ImageProcessor::OnCreate(
     input2.CreateSRV(1, &m_inputTextureSrvTable);
 
     CreateOutputResource(input1, input2);
-}
-
-void ImageProcessor::SetInput1(CAULDRON_DX12::Texture& input1)
-{
-    m_pResourceViewHeaps->AllocCBV_SRV_UAVDescriptor(2, &m_inputTextureSrvTable);
-    input1.CreateSRV(0, &m_inputTextureSrvTable);
-}
-
-void ImageProcessor::SetInput2(CAULDRON_DX12::Texture& input2)
-{
-    input2.CreateSRV(1, &m_inputTextureSrvTable);
 }
 
 void ImageProcessor::CreateOutputResource(

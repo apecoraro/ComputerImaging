@@ -11,8 +11,8 @@ uint ComputeBinNumber(float red)
     return min(uint(numberOfBins * red), 7);
 }
 
-RWTexture2D<uint2> outputTex : register(u0);
 Texture2D inputTex : register(t0);
+RWTexture2D<uint2> outputTex : register(u0);
 
 [numthreads(8, 8, 1)]
 void QuadCount(uint3 dispatchId : SV_DispatchThreadID)

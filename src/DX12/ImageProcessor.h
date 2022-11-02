@@ -10,7 +10,14 @@
 
 namespace CS570
 {
-    class ImageProcessor
+    class BaseImageProcessor
+    {
+    public:
+        virtual void Draw(ID3D12GraphicsCommandList* pCommandList) = 0;
+        virtual CAULDRON_DX12::CBV_SRV_UAV& GetOutputSrv() = 0;
+    };
+
+    class ImageProcessor : public BaseImageProcessor
     {
     public:
         void OnCreate(
@@ -22,12 +29,9 @@ namespace CS570
             CAULDRON_DX12::ResourceViewHeaps *pResourceViewHeaps,
             CAULDRON_DX12::DynamicBufferRing *pConstantBufferRing);
 
-        void SetInput1(CAULDRON_DX12::Texture& input1);
-        void SetInput2(CAULDRON_DX12::Texture& input2);
-
         void OnDestroy();
 
-        void Draw(ID3D12GraphicsCommandList *pCommandList);
+        void Draw(ID3D12GraphicsCommandList *pCommandList) override;
 
         void SetLogConstant(float logConstant) { m_constants.logConstant = logConstant; }
         void SetPowerConstant(float powerConstant) { m_constants.powerConstant = powerConstant; }

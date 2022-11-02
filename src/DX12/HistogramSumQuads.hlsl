@@ -4,8 +4,8 @@ cbuffer Constants : register(b0)
     uint2 g_outputSize;
 }
 
-RWTexture2D<uint2> outputTex : register(u0);
 Texture2D<uint2> inputTex : register(t0);
+RWTexture2D<uint2> outputTex : register(u0);
 
 [numthreads(8, 8, 1)]
 void SumQuads(uint3 dispatchId : SV_DispatchThreadID)

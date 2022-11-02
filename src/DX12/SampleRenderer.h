@@ -1,10 +1,10 @@
 #pragma once
 
 #include "CommandListRing.h"
-#include "ComputeHistogram.h"
 #include "Device.h"
 #include "DynamicBufferRing.h"
 #include "GPUTimestamps.h"
+#include "HistogramEqualizer.h"
 #include "ImageProcessor.h"
 #include "ImageRenderer.h"
 #include "Imgui.h"
@@ -90,7 +90,7 @@ namespace CS570
         std::string m_inputImage1;
         std::string m_inputImage2;
 
-        ImageProcessor* m_pCurrentOperation = nullptr;
+        BaseImageProcessor* m_pCurrentOperation = nullptr;
         ImageProcessor m_addOperation;
         ImageProcessor m_subtractOperation;
         ImageProcessor m_productOperation;
@@ -98,7 +98,7 @@ namespace CS570
         ImageProcessor m_logOperation;
         ImageProcessor m_powerOperation;
 
-        ComputeHistogram m_computeHistogram;
+        HistogramEqualizer m_histogramEqualizer;
 
         D3D12_FILTER m_displayFilter = D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT;
         ImageRenderer m_imageRenderer;

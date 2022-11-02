@@ -68,10 +68,10 @@ void SampleRenderer::OnCreate(
         m_inputTexture1, m_inputTexture2,
         m_pDevice, &m_uploadHeap, &m_resourceViewHeaps, &m_constantBufferRing);
 
-    SetOperation(initialOperation);
-
-    m_computeHistogram.OnCreate(m_inputTexture1,
+    m_histogramEqualizer.OnCreate(m_inputTexture1,
         m_pDevice, &m_uploadHeap, &m_resourceViewHeaps, &m_constantBufferRing);
+
+    SetOperation(initialOperation);
 
     m_imageRenderer.OnCreate(m_pDevice, &m_resourceViewHeaps, &m_vidMemBufferPool, pSwapChain->GetFormat());
 
@@ -259,6 +259,7 @@ void SampleRenderer::SetOperation(const std::string& operation)
     else if (operation == "Negative") m_pCurrentOperation = &m_negativeOperation;
     else if (operation == "Log") m_pCurrentOperation = &m_logOperation;
     else if (operation == "Power") m_pCurrentOperation = &m_powerOperation;
+    else if (operation == "Histogram Equalization") m_pCurrentOperation = &m_histogramEqualizer;
 }
 
 void SampleRenderer::SetInput1(const std::string& inputImage1)
@@ -303,7 +304,7 @@ void SampleRenderer::OnPostRender()
     m_logOperation.OnDestroy();
     m_powerOperation.OnDestroy();
 
-    m_computeHistogram.OnDestroy();
+    m_histogramEqualizer.OnDestroy();
 
     m_addOperation.OnCreate("Add",
         m_inputTexture1, m_inputTexture2,
@@ -324,7 +325,7 @@ void SampleRenderer::OnPostRender()
         m_inputTexture1, m_inputTexture2,
         m_pDevice, &m_uploadHeap, &m_resourceViewHeaps, &m_constantBufferRing);
 
-    m_computeHistogram.OnCreate(m_inputTexture1,
+    m_histogramEqualizer.OnCreate(m_inputTexture1,
         m_pDevice, &m_uploadHeap, &m_resourceViewHeaps, &m_constantBufferRing);
 
     m_vidMemBufferPool.UploadData(m_uploadHeap.GetCommandList());
@@ -344,7 +345,7 @@ void SampleRenderer::OnDestroy()
     m_logOperation.OnDestroy();
     m_powerOperation.OnDestroy();
 
-    m_computeHistogram.OnDestroy();
+    m_histogramEqualizer.OnDestroy();
 
     m_imageRenderer.OnDestroy();
 
@@ -596,13 +597,7 @@ void SampleRenderer::OnRender(State *pState, CAULDRON_DX12::SwapChain *pSwapChai
 
     m_gpuTimer.GetTimeStamp(pCmdLst1, "Begin Frame");
 
-    //m_pCurrentOperation->Draw(pCmdLst1);
-    static bool oneTime = true;
-    if (oneTime)
-    {
-        oneTime = false;
-        m_computeHistogram.Draw(pCmdLst1);
-    }
+    m_pCurrentOperation->Draw(pCmdLst1);
 
     CD3DX12_RESOURCE_BARRIER barriers[] = {
         CD3DX12_RESOURCE_BARRIER::Transition(
@@ -625,8 +620,7 @@ void SampleRenderer::OnRender(State *pState, CAULDRON_DX12::SwapChain *pSwapChai
     pCmdLst2->RSSetScissorRects(1, &m_rectScissor);
     pCmdLst2->OMSetRenderTargets(1, pSwapChain->GetCurrentBackBufferRTV(), true, NULL);
 
-    //m_imageRenderer.Draw(pCmdLst2, m_displayFilter, &m_pCurrentOperation->GetOutputSrv());
-    m_imageRenderer.Draw(pCmdLst2, m_displayFilter, &m_computeHistogram.GetOutputSrv());
+    m_imageRenderer.Draw(pCmdLst2, m_displayFilter, &m_pCurrentOperation->GetOutputSrv());
 
     CAULDRON_DX12::SaveTexture saver;
     if (m_saveOutput || m_saveCCLOutput)

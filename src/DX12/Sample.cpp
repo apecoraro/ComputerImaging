@@ -128,9 +128,9 @@ void Sample::OnCreate(HWND hWnd)
 
     ImGUI_Init((void *)hWnd);
 
-    std::string inputImage1 = m_mediaFiles[14];//m_mediaFiles[0];
+    std::string inputImage1 = m_mediaFiles[0];
     std::string inputImage2 = m_mediaFiles.size() == 1 ? inputImage1 : m_mediaFiles[1];
-    m_node->OnCreate(&m_device, inputImage1, inputImage2, "Log", &m_swapChain);
+    m_node->OnCreate(&m_device, inputImage1, inputImage2, "Histogram Equalization", &m_swapChain);
 }
 
 //--------------------------------------------------------------------------------------
@@ -284,9 +284,9 @@ void Sample::BuildUI()
             m_node->SetDisplayFilter(currentFilter == 0 ? D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT : D3D12_FILTER_MIN_MAG_MIP_POINT);
 
         static int currentOperation = 4; // Log
-        const char* operations[6] = { "Add", "Subtract", "Product", "Negative", "Log", "Power" };
+        const char* operations[] = { "Add", "Subtract", "Product", "Negative", "Log", "Power", "Histogram Equalization"};
         std::string operation = operations[currentOperation];
-        if (ImGui::Combo("Operation", &currentOperation, operations, 6))
+        if (ImGui::Combo("Operation", &currentOperation, operations, sizeof(operations)/sizeof(operations[0])))
         {
             operation = operations[currentOperation];
             m_node->SetOperation(operation);

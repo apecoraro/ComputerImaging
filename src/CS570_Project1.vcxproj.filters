@@ -144,6 +144,9 @@
     <ClCompile Include="DX12\ComputeHistogram.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="DX12\HistogramEqualizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DX12\ImageProcessor.h">
@@ -272,6 +275,9 @@
     <ClInclude Include="DX12\ComputeHistogram.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="DX12\HistogramEqualizer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="DX12\RenderImage.hlsl">
@@ -292,10 +298,8 @@
     <None Include="DX12\HistogramCreateLUT.hlsl">
       <Filter>Source Files</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="DX12\HistogramEqualize.hlsl">
+    <None Include="DX12\HistogramEqualize.hlsl">
       <Filter>Source Files</Filter>
-    </FxCompile>
+    </None>
   </ItemGroup>
 </Project>

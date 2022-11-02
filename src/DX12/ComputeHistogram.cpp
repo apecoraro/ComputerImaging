@@ -3,7 +3,6 @@
 #include "Device.h"
 #include "DynamicBufferRing.h"
 #include "Error.h"
-#include "Imgui.h"
 #include "Helper.h"
 #include "ShaderCompiler.h"
 #include "ShaderCompilerHelper.h"
@@ -70,14 +69,14 @@ void ComputeHistogram::OnCreate(
 
     m_sumQuads.OnCreate(m_pRootSignature, pDevice);
 
-    m_createLUT.OnCreate(m_pRootSignature, input, 8, pDevice, pResourceViewHeaps);
+    m_createLUT.OnCreate(m_pRootSignature, input, pDevice, pResourceViewHeaps);
 
     m_pResourceViewHeaps->AllocCBV_SRV_UAVDescriptor(1, &m_constBuffer);
     m_pResourceViewHeaps->AllocCBV_SRV_UAVDescriptor(1, &m_inputTextureSrv);
 
-    input.CreateSRV(0, &m_inputTextureSrv);
     m_constants.inputWidth = input.GetWidth();
     m_constants.inputHeight = input.GetHeight();
+    input.CreateSRV(0, &m_inputTextureSrv);
 
     CreateOutputResource(input);
 }
@@ -126,34 +125,45 @@ void SumQuads::OnCreate(ID3D12RootSignature* pRootSignature, Device* pDevice)
 void CreateLUT::OnCreate(
     ID3D12RootSignature* pRootSignature,
     const Texture& input,
-    uint32_t binCount,
     Device* pDevice,
     ResourceViewHeaps* pResourceViewHeaps)
 {
-    D3D12_SHADER_BYTECODE shaderByteCode = {};
+    D3D12_SHADER_BYTECODE createLUTByteCode = {};
     DefineList defines;
     CAULDRON_DX12::CompileShaderFromFile(
         "DX12/HistogramCreateLUT.hlsl",
         &defines,
         "CreateLUT",
         "-T cs_6_0 /Zi /Zss -Od -Qembed_debug",
-        &shaderByteCode);
+        &createLUTByteCode);
 
     D3D12_COMPUTE_PIPELINE_STATE_DESC descPso = {};
-    descPso.CS = shaderByteCode;
+    descPso.CS = createLUTByteCode;
     descPso.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
     descPso.pRootSignature = pRootSignature;
     descPso.NodeMask = 0;
 
-    ThrowIfFailed(pDevice->GetDevice()->CreateComputePipelineState(&descPso, IID_PPV_ARGS(&m_pPipeline)));
+    ThrowIfFailed(pDevice->GetDevice()->CreateComputePipelineState(&descPso, IID_PPV_ARGS(&m_pCreateLUT)));
 
-    m_lutConstants.outputSize = binCount;
+    D3D12_SHADER_BYTECODE createInverseLUTByteCode = {};
+    CAULDRON_DX12::CompileShaderFromFile(
+        "DX12/HistogramCreateLUT.hlsl",
+        &defines,
+        "CreateInverseLUT",
+        "-T cs_6_0 /Zi /Zss -Od -Qembed_debug",
+        &createInverseLUTByteCode);
+
+    descPso.CS = createInverseLUTByteCode;
+
+    ThrowIfFailed(pDevice->GetDevice()->CreateComputePipelineState(&descPso, IID_PPV_ARGS(&m_pCreateInverseLUT)));
+
+    m_lutConstants.outputSize = 8;
     m_lutConstants.pixelCount = input.GetWidth() * input.GetHeight();
 
     CD3DX12_RESOURCE_DESC outputDesc =
         CD3DX12_RESOURCE_DESC::Tex2D(
             DXGI_FORMAT_R32_UINT,
-            binCount, 1,
+            8, 1,
             1, // array size
             1, // mip size
             1, // sample count
@@ -164,15 +174,6 @@ void CreateLUT::OnCreate(
 
     pResourceViewHeaps->AllocCBV_SRV_UAVDescriptor(1, &m_outputUav);
     m_outputLUT.CreateUAV(0, &m_outputUav);
-
-    pResourceViewHeaps->AllocCBV_SRV_UAVDescriptor(1, &m_outputSrv);
-    m_outputLUT.CreateSRV(0, &m_outputSrv);
-}
-
-void ComputeHistogram::SetInput(Texture& input)
-{
-    m_pResourceViewHeaps->AllocCBV_SRV_UAVDescriptor(1, &m_inputTextureSrv);
-    input.CreateSRV(0, &m_inputTextureSrv);
 }
 
 void ComputeHistogram::CreateOutputResource(Texture& input)
@@ -261,10 +262,16 @@ void CreateLUT::OnDestroy()
 {
     m_outputLUT.OnDestroy();
 
-    if (m_pPipeline != nullptr)
+    if (m_pCreateLUT != nullptr)
     {
-        m_pPipeline->Release();
-        m_pPipeline = nullptr;
+        m_pCreateLUT->Release();
+        m_pCreateLUT = nullptr;
+    }
+
+    if (m_pCreateInverseLUT != nullptr)
+    {
+        m_pCreateInverseLUT->Release();
+        m_pCreateInverseLUT = nullptr;
     }
 }
 
@@ -424,7 +431,8 @@ void CreateLUT::Draw(
     ID3D12GraphicsCommandList* pCommandList,
     DynamicBufferRing* pConstantBufferRing,
     ID3D12RootSignature* pRootSignature,
-    CBV_SRV_UAV* pInputSrv)
+    CBV_SRV_UAV* pInputSrv,
+    bool createInverseLUT)
 {
     CD3DX12_RESOURCE_BARRIER barrier =
         CD3DX12_RESOURCE_BARRIER::Transition(
@@ -433,6 +441,16 @@ void CreateLUT::Draw(
             D3D12_RESOURCE_STATE_UNORDERED_ACCESS);
 
     pCommandList->ResourceBarrier(1, &barrier);
+
+    if (createInverseLUT)
+    {
+        uint32_t clearValues[] = { 8,8,8,8 };
+        pCommandList->ClearUnorderedAccessViewUint(m_outputUav.GetGPU(), m_outputUav.GetCPU(), m_outputLUT.GetResource(), clearValues, 0, nullptr);
+        pCommandList->SetPipelineState(m_pCreateInverseLUT);
+    }
+    else
+        pCommandList->SetPipelineState(m_pCreateLUT);
+    pCommandList->SetComputeRootSignature(pRootSignature);
 
     D3D12_GPU_VIRTUAL_ADDRESS cbHandle;
     uint32_t* pConstMem;
