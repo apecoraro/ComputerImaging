@@ -261,6 +261,11 @@
       <FileType>Document</FileType>
     </None>
   </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="DX12\ComputeGaussianWeights.hlsl" />
+    <FxCompile Include="DX12\GaussianBlur.hlsl" />
+    <FxCompile Include="DX12\HistogramMatch.hlsl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -8,16 +8,24 @@ cbuffer Constants : register(b0)
 RWTexture2D<float4> outputTex : register(u0);
 
 [numthreads(8, 8, 1)]
-void main(uint3 dispatchId : SV_DispatchThreadID)
+void ComputeWeight(uint3 dispatchId : SV_DispatchThreadID)
 {
     if (dispatchId.x >= g_outputSize.x || dispatchId.y >= g_outputSize.y)
         return;
-    
-    const float e = 2.7182818284590452353602874713527f;
-    const float PI = 3.1415926535897932384626433832795f;
+
+    const float e = 2.7182818f;
+    const float PI = 3.141593f;
     const float kFactor = 1.0f / (2.0f * PI);
 
-    float eFactor = e * kFactor * g_oneOverSigmaSquared;
+    float eFactor = kFactor * g_oneOverSigmaSquared;
+
     float2 xy = float2(dispatchId.xy - g_outputSize);
-    float ePower;
+    float2 xySquared = xy * xy;
+    float ePower = (-1.0f * (xySquared.x + xySquared.y)) * 0.5f * g_oneOverSigmaSquared;
+
+    float eRaisedToPower = pow(e, ePower);
+    
+    float weight = eFactor * eRaisedToPower;
+
+    outputTex[dispatchId.xy] = float4(weight, weight, weight, weight);
 }
