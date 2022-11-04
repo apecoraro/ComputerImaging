@@ -157,6 +157,18 @@ void CreateLUT::OnCreate(
 
     ThrowIfFailed(pDevice->GetDevice()->CreateComputePipelineState(&descPso, IID_PPV_ARGS(&m_pCreateInverseLUT)));
 
+    D3D12_SHADER_BYTECODE initInverseLUTByteCode = {};
+    CAULDRON_DX12::CompileShaderFromFile(
+        "DX12/HistogramInitInverseLUT.hlsl",
+        &defines,
+        "InitInverseLUT",
+        "-T cs_6_0 /Zi /Zss -Od -Qembed_debug",
+        &initInverseLUTByteCode);
+
+    descPso.CS = initInverseLUTByteCode;
+
+    ThrowIfFailed(pDevice->GetDevice()->CreateComputePipelineState(&descPso, IID_PPV_ARGS(&m_pInitInverseLUT)));
+
     m_lutConstants.outputSize = 8;
     m_lutConstants.pixelCount = input.GetWidth() * input.GetHeight();
 
@@ -275,7 +287,7 @@ void CreateLUT::OnDestroy()
     }
 }
 
-void ComputeHistogram::Draw(ID3D12GraphicsCommandList* pCommandList)
+void ComputeHistogram::Draw(ID3D12GraphicsCommandList* pCommandList, bool createInverseLUT)
 {
     UserMarker marker(pCommandList, "ComputeHistogram");
 
@@ -410,7 +422,7 @@ void ComputeHistogram::Draw(ID3D12GraphicsCommandList* pCommandList)
     else
         pSumQuadsOutput = &m_outputSrv1;
 
-    m_createLUT.Draw(pCommandList, m_pConstantBufferRing, m_pRootSignature, pSumQuadsOutput);
+    m_createLUT.Draw(pCommandList, m_pConstantBufferRing, m_pRootSignature, pSumQuadsOutput, createInverseLUT);
 }
 
 void QuadCount::Setup(ID3D12GraphicsCommandList* pCommandList, ID3D12RootSignature* pRootSignature)
@@ -444,8 +456,7 @@ void CreateLUT::Draw(
 
     if (createInverseLUT)
     {
-        uint32_t clearValues[] = { 8,8,8,8 };
-        pCommandList->ClearUnorderedAccessViewUint(m_outputUav.GetGPU(), m_outputUav.GetCPU(), m_outputLUT.GetResource(), clearValues, 0, nullptr);
+        InitInverseLUT(pCommandList, pConstantBufferRing, pRootSignature, pInputSrv);
         pCommandList->SetPipelineState(m_pCreateInverseLUT);
     }
     else
@@ -472,6 +483,30 @@ void CreateLUT::Draw(
             D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     pCommandList->ResourceBarrier(1, &barrier);
+}
+
+void CreateLUT::InitInverseLUT(
+    ID3D12GraphicsCommandList* pCommandList,
+    DynamicBufferRing* pConstantBufferRing,
+    ID3D12RootSignature* pRootSignature,
+    CBV_SRV_UAV* pInputSrv)
+{
+    pCommandList->SetPipelineState(m_pInitInverseLUT);
+    pCommandList->SetComputeRootSignature(pRootSignature);
+
+    D3D12_GPU_VIRTUAL_ADDRESS cbHandle;
+    uint32_t* pConstMem;
+    pConstantBufferRing->AllocConstantBuffer(sizeof(m_lutConstants), (void**)&pConstMem, &cbHandle);
+
+    memcpy(pConstMem, &m_lutConstants, sizeof(m_lutConstants));
+
+    pCommandList->SetComputeRootConstantBufferView(0, cbHandle);
+
+    pCommandList->SetComputeRootDescriptorTable(1, m_outputUav.GetGPU());
+    pCommandList->SetComputeRootDescriptorTable(2, pInputSrv->GetGPU());
+
+    uint32_t dispatchX = (m_lutConstants.outputSize + 7) / 8;
+    pCommandList->Dispatch(dispatchX, 1, 1);
 }
 
 void SumQuads::Setup(ID3D12GraphicsCommandList* pCommandList, ID3D12RootSignature* pRootSignature)

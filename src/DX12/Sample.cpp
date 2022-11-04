@@ -128,9 +128,18 @@ void Sample::OnCreate(HWND hWnd)
 
     ImGUI_Init((void *)hWnd);
 
-    std::string inputImage1 = m_mediaFiles[0];
-    std::string inputImage2 = m_mediaFiles.size() == 1 ? inputImage1 : m_mediaFiles[1];
-    m_node->OnCreate(&m_device, inputImage1, inputImage2, "Histogram Equalization", &m_swapChain);
+    m_currentOperation = 7;
+    std::string operations[] = {
+        "Add", "Subtract", "Product",
+        "Negative", "Log", "Power",
+        "Histogram Equalization", "Histogram Match"
+    };
+    m_operations.insert(m_operations.end(), operations, &operations[sizeof(operations) / sizeof(operations[0])]);
+    m_currentInput1 = 14;
+    std::string inputImage1 = m_mediaFiles[m_currentInput1];
+    m_currentInput2 = std::min(m_currentInput1 + 1, static_cast<int32_t>(m_mediaFiles.size() - 1));
+    std::string inputImage2 = m_mediaFiles[m_currentInput2];
+    m_node->OnCreate(&m_device, inputImage1, inputImage2, m_operations[m_currentOperation], &m_swapChain);
 }
 
 //--------------------------------------------------------------------------------------
@@ -283,12 +292,16 @@ void Sample::BuildUI()
         if (ImGui::Combo("Display Filter", &currentFilter, filters))
             m_node->SetDisplayFilter(currentFilter == 0 ? D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT : D3D12_FILTER_MIN_MAG_MIP_POINT);
 
-        static int currentOperation = 4; // Log
-        const char* operations[] = { "Add", "Subtract", "Product", "Negative", "Log", "Power", "Histogram Equalization"};
-        std::string operation = operations[currentOperation];
-        if (ImGui::Combo("Operation", &currentOperation, operations, sizeof(operations)/sizeof(operations[0])))
+        std::vector<const char*> operations(m_operations.size());
+        for (uint32_t i = 0; i < m_operations.size(); ++i)
         {
-            operation = operations[currentOperation];
+            const auto& operation = m_operations[i];
+            operations[i] = operation.c_str();
+        }
+        std::string operation = operations[m_currentOperation];
+        if (ImGui::Combo("Operation", &m_currentOperation, operations.data(), operations.size()))
+        {
+            operation = operations[m_currentOperation];
             m_node->SetOperation(operation);
         }
 
@@ -297,26 +310,25 @@ void Sample::BuildUI()
             inputs.push_back(mediaFile.c_str());
 
         bool inputsUpdated = false;
-        static int currentInput1 = 0;
-        int lastInput1 = currentInput1;
-        if (ImGui::Combo("Input1", &currentInput1, inputs.data(), inputs.size()))
-            inputsUpdated = lastInput1 != currentInput1;
+        int lastInput1 = m_currentInput1;
+        if (ImGui::Combo("Input1", &m_currentInput1, inputs.data(), inputs.size()))
+            inputsUpdated = lastInput1 != m_currentInput1;
 
-        static int currentInput2 = m_mediaFiles.size() == 1 ? 0 : 1;
-        int lastInput2 = currentInput2;
-        if (operation == "Add" || operation == "Subtract" || operation == "Product")
+        int lastInput2 = m_currentInput2;
+        if (operation == "Add" || operation == "Subtract"||
+            operation == "Product" || operation == "Histogram Match")
         {
-            if (ImGui::Combo("Input2", &currentInput2, inputs.data(), inputs.size()))
-                inputsUpdated = lastInput2 != currentInput2;
+            if (ImGui::Combo("Input2", &m_currentInput2, inputs.data(), inputs.size()))
+                inputsUpdated = lastInput2 != m_currentInput2;
         }
 
         if (inputsUpdated)
         {
             m_device.GPUFlush();
-            if (lastInput1 != currentInput1)
-                m_node->SetInput1(m_mediaFiles[currentInput1]);
-            if (lastInput2 != currentInput2)
-                m_node->SetInput2(m_mediaFiles[currentInput2]);
+            if (lastInput1 != m_currentInput1)
+                m_node->SetInput1(m_mediaFiles[m_currentInput1]);
+            if (lastInput2 != m_currentInput2)
+                m_node->SetInput2(m_mediaFiles[m_currentInput2]);
         }
 
         if (operation == "Log")

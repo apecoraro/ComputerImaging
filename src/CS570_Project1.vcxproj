@@ -161,6 +161,7 @@
     <ClCompile Include="DX12\Hash.cpp" />
     <ClCompile Include="DX12\Helper.cpp" />
     <ClCompile Include="DX12\HistogramEqualizer.cpp" />
+    <ClCompile Include="DX12\HistogramMatcher.cpp" />
     <ClCompile Include="DX12\ImageProcessor.cpp" />
     <ClCompile Include="DX12\ImageRenderer.cpp" />
     <ClCompile Include="DX12\ImgLoader.cpp" />
@@ -205,6 +206,7 @@
     <ClInclude Include="DX12\Hash.h" />
     <ClInclude Include="DX12\Helper.h" />
     <ClInclude Include="DX12\HistogramEqualizer.h" />
+    <ClInclude Include="DX12\HistogramMatcher.h" />
     <ClInclude Include="DX12\ImageProcessor.h" />
     <ClInclude Include="DX12\ImageRenderer.h" />
     <ClInclude Include="DX12\ImgLoader.h" />
@@ -262,9 +264,20 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="DX12\ComputeGaussianWeights.hlsl" />
-    <FxCompile Include="DX12\GaussianBlur.hlsl" />
-    <FxCompile Include="DX12\HistogramMatch.hlsl" />
+    <None Include="DX12\ComputeGaussianWeights.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="DX12\GaussianBlur.hlsl">
+      <FileType>Document</FileType>
+    </None>
+    <None Include="DX12\HistogramMatch.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DX12\HistogramInitInverseLUT.hlsl">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

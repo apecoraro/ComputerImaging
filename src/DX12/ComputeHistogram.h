@@ -59,8 +59,15 @@ namespace CS570
         CAULDRON_DX12::Texture& GetOutputResource() { return m_outputLUT; }
 
     private:
+        void InitInverseLUT(
+            ID3D12GraphicsCommandList* pCommandList,
+            CAULDRON_DX12::DynamicBufferRing* pConstantBufferRing,
+            ID3D12RootSignature* pRootSignature,
+            CAULDRON_DX12::CBV_SRV_UAV* pInputSrv);
+
         ID3D12PipelineState* m_pCreateLUT = nullptr;
         ID3D12PipelineState* m_pCreateInverseLUT = nullptr;
+        ID3D12PipelineState* m_pInitInverseLUT = nullptr;
 
         struct LutConstants
         {
@@ -84,7 +91,7 @@ namespace CS570
             CAULDRON_DX12::DynamicBufferRing *pConstantBufferRing);
         void OnDestroy();
 
-        void Draw(ID3D12GraphicsCommandList *pCommandList);
+        void Draw(ID3D12GraphicsCommandList *pCommandList, bool createInverseLUT=false);
 
         CAULDRON_DX12::Texture& GetOutputResource() { return m_createLUT.GetOutputResource(); }
 

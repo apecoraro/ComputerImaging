@@ -71,6 +71,9 @@ void SampleRenderer::OnCreate(
     m_histogramEqualizer.OnCreate(m_inputTexture1,
         m_pDevice, &m_uploadHeap, &m_resourceViewHeaps, &m_constantBufferRing);
 
+    m_histogramMatcher.OnCreate(m_inputTexture1, m_inputTexture2,
+        m_pDevice, &m_uploadHeap, &m_resourceViewHeaps, &m_constantBufferRing);
+
     SetOperation(initialOperation);
 
     m_imageRenderer.OnCreate(m_pDevice, &m_resourceViewHeaps, &m_vidMemBufferPool, pSwapChain->GetFormat());
@@ -253,6 +256,7 @@ void SampleRenderer::LoadInputTextures(
 
 void SampleRenderer::SetOperation(const std::string& operation)
 {
+    m_currentOperation = operation;
     if (operation == "Add") m_pCurrentOperation = &m_addOperation;
     else if (operation == "Subtract") m_pCurrentOperation = &m_subtractOperation;
     else if (operation == "Product") m_pCurrentOperation = &m_productOperation;
@@ -260,6 +264,7 @@ void SampleRenderer::SetOperation(const std::string& operation)
     else if (operation == "Log") m_pCurrentOperation = &m_logOperation;
     else if (operation == "Power") m_pCurrentOperation = &m_powerOperation;
     else if (operation == "Histogram Equalization") m_pCurrentOperation = &m_histogramEqualizer;
+    else if (operation == "Histogram Match") m_pCurrentOperation = &m_histogramMatcher;
 }
 
 void SampleRenderer::SetInput1(const std::string& inputImage1)
@@ -305,6 +310,7 @@ void SampleRenderer::OnPostRender()
     m_powerOperation.OnDestroy();
 
     m_histogramEqualizer.OnDestroy();
+    m_histogramMatcher.OnDestroy();
 
     m_addOperation.OnCreate("Add",
         m_inputTexture1, m_inputTexture2,
@@ -328,6 +334,9 @@ void SampleRenderer::OnPostRender()
     m_histogramEqualizer.OnCreate(m_inputTexture1,
         m_pDevice, &m_uploadHeap, &m_resourceViewHeaps, &m_constantBufferRing);
 
+    m_histogramMatcher.OnCreate(m_inputTexture1, m_inputTexture2,
+        m_pDevice, &m_uploadHeap, &m_resourceViewHeaps, &m_constantBufferRing);
+
     m_vidMemBufferPool.UploadData(m_uploadHeap.GetCommandList());
     m_uploadHeap.FlushAndFinish();
 
@@ -346,6 +355,7 @@ void SampleRenderer::OnDestroy()
     m_powerOperation.OnDestroy();
 
     m_histogramEqualizer.OnDestroy();
+    m_histogramMatcher.OnDestroy();
 
     m_imageRenderer.OnDestroy();
 

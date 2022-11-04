@@ -12,7 +12,7 @@ uint ComputeBinNumber(float red)
 
 Texture2D inputTex : register(t0);
 Texture1D<uint> histogramLUT : register(t1);
-Texture1D<uint> histogramInverseLUT : register(t1);
+Texture1D<uint> histogramInverseLUT : register(t2);
 RWTexture2D<float4> outputTex : register(u0);
 
 [numthreads(8, 8, 1)]

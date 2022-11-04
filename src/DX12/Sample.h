@@ -29,6 +29,11 @@ namespace CS570
         CAULDRON_DX12::Device m_device;
         CAULDRON_DX12::SwapChain m_swapChain;
 
+        int32_t m_currentOperation = 0;
+        std::vector<std::string> m_operations;
+
+        int32_t m_currentInput1 = 0;
+        int32_t m_currentInput2 = 1;
         std::vector<std::string> m_mediaFiles;
 
         SampleRenderer* m_node = nullptr;

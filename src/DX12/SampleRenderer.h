@@ -5,6 +5,7 @@
 #include "DynamicBufferRing.h"
 #include "GPUTimestamps.h"
 #include "HistogramEqualizer.h"
+#include "HistogramMatcher.h"
 #include "ImageProcessor.h"
 #include "ImageRenderer.h"
 #include "Imgui.h"
@@ -48,6 +49,7 @@ namespace CS570
         void OnRender(State *pState, CAULDRON_DX12::SwapChain* pSwapChain);
         void OnPostRender();
 
+        const std::string& GetOperation() const { return m_currentOperation; }
         void SetOperation(const std::string& operation);
         void SetInput1(const std::string& inputImage1);
         void SetInput2(const std::string& inputImage2);
@@ -90,6 +92,7 @@ namespace CS570
         std::string m_inputImage1;
         std::string m_inputImage2;
 
+        std::string m_currentOperation;
         BaseImageProcessor* m_pCurrentOperation = nullptr;
         ImageProcessor m_addOperation;
         ImageProcessor m_subtractOperation;
@@ -99,6 +102,7 @@ namespace CS570
         ImageProcessor m_powerOperation;
 
         HistogramEqualizer m_histogramEqualizer;
+        HistogramMatcher m_histogramMatcher;
 
         D3D12_FILTER m_displayFilter = D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT;
         ImageRenderer m_imageRenderer;
