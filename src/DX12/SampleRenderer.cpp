@@ -74,6 +74,9 @@ void SampleRenderer::OnCreate(
     m_histogramMatcher.OnCreate(m_inputTexture1, m_inputTexture2,
         m_pDevice, &m_uploadHeap, &m_resourceViewHeaps, &m_constantBufferRing);
 
+    m_gaussianBlur.OnCreate(m_inputTexture1, m_blurKernelSize, m_blurVariance,
+        m_pDevice, &m_uploadHeap, &m_resourceViewHeaps, &m_constantBufferRing);
+
     SetOperation(initialOperation);
 
     m_imageRenderer.OnCreate(m_pDevice, &m_resourceViewHeaps, &m_vidMemBufferPool, pSwapChain->GetFormat());
@@ -265,6 +268,7 @@ void SampleRenderer::SetOperation(const std::string& operation)
     else if (operation == "Power") m_pCurrentOperation = &m_powerOperation;
     else if (operation == "Histogram Equalization") m_pCurrentOperation = &m_histogramEqualizer;
     else if (operation == "Histogram Match") m_pCurrentOperation = &m_histogramMatcher;
+    else if (operation == "Gaussian Blur") m_pCurrentOperation = &m_gaussianBlur;
 }
 
 void SampleRenderer::SetInput1(const std::string& inputImage1)
@@ -281,7 +285,7 @@ void SampleRenderer::SetInput2(const std::string& inputImage2)
 
 void SampleRenderer::OnPostRender()
 {
-    if (!m_rebuildImage1 && !m_rebuildImage2)
+    if (!m_rebuildImage1 && !m_rebuildImage2 && !m_recreateBlurWeights)
         return;
 
     m_pDevice->GPUFlush();
@@ -312,6 +316,8 @@ void SampleRenderer::OnPostRender()
     m_histogramEqualizer.OnDestroy();
     m_histogramMatcher.OnDestroy();
 
+    m_gaussianBlur.OnDestroy();
+
     m_addOperation.OnCreate("Add",
         m_inputTexture1, m_inputTexture2,
         m_pDevice, &m_uploadHeap, &m_resourceViewHeaps, &m_constantBufferRing);
@@ -335,6 +341,9 @@ void SampleRenderer::OnPostRender()
         m_pDevice, &m_uploadHeap, &m_resourceViewHeaps, &m_constantBufferRing);
 
     m_histogramMatcher.OnCreate(m_inputTexture1, m_inputTexture2,
+        m_pDevice, &m_uploadHeap, &m_resourceViewHeaps, &m_constantBufferRing);
+
+    m_gaussianBlur.OnCreate(m_inputTexture1, m_blurKernelSize, m_blurVariance,
         m_pDevice, &m_uploadHeap, &m_resourceViewHeaps, &m_constantBufferRing);
 
     m_vidMemBufferPool.UploadData(m_uploadHeap.GetCommandList());

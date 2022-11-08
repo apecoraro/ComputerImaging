@@ -3,6 +3,7 @@
 #include "CommandListRing.h"
 #include "Device.h"
 #include "DynamicBufferRing.h"
+#include "GaussianBlur.h"
 #include "GPUTimestamps.h"
 #include "HistogramEqualizer.h"
 #include "HistogramMatcher.h"
@@ -58,6 +59,17 @@ namespace CS570
         void SetPowerConstant(float constant) { m_powerOperation.SetPowerConstant(constant); }
         void SetPowerRaise(float raise) { m_powerOperation.SetPowerRaise(raise); }
 
+        void SetBlurKernelSize(uint32_t blurKernelSize)
+        {
+            m_recreateBlurWeights = blurKernelSize != m_blurKernelSize;
+            m_blurKernelSize = blurKernelSize;
+        }
+
+        void SetBlurVariance(float blurVariance)
+        {
+            m_gaussianBlur.SetVariance(blurVariance);
+        }
+
         void SetDisplayFilter(D3D12_FILTER filter) { m_displayFilter = filter; }
 
         void SaveOutput() { m_saveOutput = true; }
@@ -92,6 +104,10 @@ namespace CS570
         std::string m_inputImage1;
         std::string m_inputImage2;
 
+        uint32_t m_blurKernelSize = 3u;
+        float m_blurVariance = 1.0f;
+        bool m_recreateBlurWeights = false;
+
         std::string m_currentOperation;
         BaseImageProcessor* m_pCurrentOperation = nullptr;
         ImageProcessor m_addOperation;
@@ -103,6 +119,8 @@ namespace CS570
 
         HistogramEqualizer m_histogramEqualizer;
         HistogramMatcher m_histogramMatcher;
+
+        GaussianBlur m_gaussianBlur;
 
         D3D12_FILTER m_displayFilter = D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT;
         ImageRenderer m_imageRenderer;

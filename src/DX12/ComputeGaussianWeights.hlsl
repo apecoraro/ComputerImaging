@@ -14,18 +14,15 @@ void ComputeWeight(uint3 dispatchId : SV_DispatchThreadID)
         return;
 
     const float e = 2.7182818f;
-    const float PI = 3.141593f;
-    const float kFactor = 1.0f / (2.0f * PI);
-
-    float eFactor = kFactor * g_oneOverSigmaSquared;
-
-    float2 xy = float2(dispatchId.xy - g_outputSize);
+    float powerDenominator = 0.5f * g_oneOverSigmaSquared;
+    int2 centerXY = int2(g_outputSize) >> 1;
+    float2 xy = float2(int2(dispatchId.xy) - centerXY);
     float2 xySquared = xy * xy;
-    float ePower = (-1.0f * (xySquared.x + xySquared.y)) * 0.5f * g_oneOverSigmaSquared;
+    float ePower = (-1.0f * (xySquared.x + xySquared.y)) * powerDenominator;
 
     float eRaisedToPower = pow(e, ePower);
     
-    float weight = eFactor * eRaisedToPower;
+    float weight = eRaisedToPower;
 
     outputTex[dispatchId.xy] = float4(weight, weight, weight, weight);
 }

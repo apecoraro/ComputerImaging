@@ -128,14 +128,15 @@ void Sample::OnCreate(HWND hWnd)
 
     ImGUI_Init((void *)hWnd);
 
-    m_currentOperation = 7;
+    m_currentOperation = 8;
     std::string operations[] = {
         "Add", "Subtract", "Product",
         "Negative", "Log", "Power",
-        "Histogram Equalization", "Histogram Match"
+        "Histogram Equalization", "Histogram Match",
+        "Gaussian Blur"
     };
     m_operations.insert(m_operations.end(), operations, &operations[sizeof(operations) / sizeof(operations[0])]);
-    m_currentInput1 = 14;
+    m_currentInput1 = 0;
     std::string inputImage1 = m_mediaFiles[m_currentInput1];
     m_currentInput2 = std::min(m_currentInput1 + 1, static_cast<int32_t>(m_mediaFiles.size() - 1));
     std::string inputImage2 = m_mediaFiles[m_currentInput2];
@@ -335,23 +336,30 @@ void Sample::BuildUI()
         {
             static float logConstant = 1.0f;
             if (ImGui::SliderFloat("Log Constant", &logConstant, 0.0f, 3.0f, "%.2f"))
-            {
                 m_node->SetLogConstant(logConstant);
-            }
         }
         else if (operation == "Power")
         {
             static float powerConstant = 1.0f;
             if (ImGui::SliderFloat("Power Constant", &powerConstant, 0.0f, 3.0f, "%.2f"))
-            {
                 m_node->SetPowerConstant(powerConstant);
-            }
 
             static float powerRaise = 1.0f;
             if (ImGui::SliderFloat("Power Raise", &powerRaise, 0.0f, 2.0f, "%.3f"))
-            {
                 m_node->SetPowerRaise(powerRaise);
-            }
+        }
+        else if (operation == "Gaussian Blur")
+        {
+            static int32_t currentBlurKernelSize = 0u;
+            const char* blurKernelSizes[] = {
+                "3", "5", "7", "9", "11", "13", "15"
+            };
+            if (ImGui::Combo("BlurKernelSize", &currentBlurKernelSize, blurKernelSizes, sizeof(blurKernelSizes)/sizeof(blurKernelSizes[0])))
+                m_node->SetBlurKernelSize(atoi(blurKernelSizes[currentBlurKernelSize]));
+
+            static float currentBlurVariance = 1.0f;
+            if (ImGui::SliderFloat("Blur Variance", &currentBlurVariance, 1.0f, 4.0f, "%.3f"))
+                m_node->SetBlurVariance(currentBlurVariance);
         }
 
         /*if (ImGui::CollapsingHeader("Profiler", ImGuiTreeNodeFlags_DefaultOpen))
