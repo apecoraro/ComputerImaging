@@ -4,6 +4,8 @@ cbuffer Constants : register(b0)
     float g_logConstant;
     float g_powerConstant;
     float g_powerRaise;
+    float g_weightInput1;
+    float g_weightInput2;
 }
 
 RWTexture2D<float4> outputTex : register(u0);
@@ -19,8 +21,8 @@ void Add(uint3 dispatchId : SV_DispatchThreadID)
 
     float2 inputUV = (float2(dispatchId.xy) / float2(g_outputSize.xy));
     
-    float4 color1 = inputTex1.SampleLevel(inputSampler, inputUV, 0);
-    float4 color2 = inputTex2.SampleLevel(inputSampler, inputUV, 0);
+    float4 color1 = inputTex1.SampleLevel(inputSampler, inputUV, 0) * g_weightInput1;
+    float4 color2 = inputTex2.SampleLevel(inputSampler, inputUV, 0) * g_weightInput2;
 
     outputTex[dispatchId.xy] = color1 + color2;
 }
@@ -33,8 +35,8 @@ void Subtract(uint3 dispatchId : SV_DispatchThreadID)
 
     float2 inputUV = (float2(dispatchId.xy) / float2(g_outputSize.xy));
     
-    float4 color1 = inputTex1.SampleLevel(inputSampler, inputUV, 0);
-    float4 color2 = inputTex2.SampleLevel(inputSampler, inputUV, 0);
+    float4 color1 = inputTex1.SampleLevel(inputSampler, inputUV, 0) * g_weightInput1;
+    float4 color2 = inputTex2.SampleLevel(inputSampler, inputUV, 0) * g_weightInput2;
     
     outputTex[dispatchId.xy] = color1 - color2;
 }
@@ -47,8 +49,8 @@ void Product(uint3 dispatchId : SV_DispatchThreadID)
 
     float2 inputUV = (float2(dispatchId.xy) / float2(g_outputSize.xy));
     
-    float4 color1 = inputTex1.SampleLevel(inputSampler, inputUV, 0);
-    float4 color2 = inputTex2.SampleLevel(inputSampler, inputUV, 0);
+    float4 color1 = inputTex1.SampleLevel(inputSampler, inputUV, 0) * g_weightInput1;
+    float4 color2 = inputTex2.SampleLevel(inputSampler, inputUV, 0) * g_weightInput2;
     
     outputTex[dispatchId.xy] = color1 * color2;
 }

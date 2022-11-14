@@ -15,6 +15,7 @@ namespace CS570
     public:
         virtual void Draw(ID3D12GraphicsCommandList* pCommandList) = 0;
         virtual CAULDRON_DX12::CBV_SRV_UAV& GetOutputSrv() = 0;
+        virtual CAULDRON_DX12::Texture& GetOutputResource() = 0;
     };
 
     class ImageProcessor : public BaseImageProcessor
@@ -36,8 +37,11 @@ namespace CS570
         void SetLogConstant(float logConstant) { m_constants.logConstant = logConstant; }
         void SetPowerConstant(float powerConstant) { m_constants.powerConstant = powerConstant; }
         void SetPowerRaise(float powerRaise) { m_constants.powerRaise = powerRaise; }
+        void SetWeightInput1(float weightInput1) { m_constants.weightInput1 = weightInput1; }
+        void SetWeightInput2(float weightInput2) { m_constants.weightInput2 = weightInput2; }
 
-        CAULDRON_DX12::CBV_SRV_UAV& GetOutputSrv() { return m_outputSrv; }
+        CAULDRON_DX12::CBV_SRV_UAV& GetOutputSrv() override { return m_outputSrv; }
+        CAULDRON_DX12::Texture& GetOutputResource() override { return m_outputTexture; }
 
     private:
         void CreateOutputResource(CAULDRON_DX12::Texture& input1, CAULDRON_DX12::Texture& input2);
@@ -50,6 +54,8 @@ namespace CS570
             float logConstant = 1.0f;
             float powerConstant = 1.0f;
             float powerRaise = 1.0f;
+            float weightInput1 = 1.0f;
+            float weightInput2 = 1.0f;
         };
 
         Constants m_constants;

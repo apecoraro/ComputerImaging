@@ -1,19 +1,19 @@
 #pragma once
 
 #include "ImageProcessor.h"
-#include "ComputeHistogram.h"
 
 #include "Device.h"
 #include "DynamicBufferRing.h"
 #include "ResourceViewHeaps.h"
 #include "Texture.h"
+#include "SobelFilterCombine.h"
 #include "UploadHeap.h"
 
 #include <string>
 
 namespace CS570
 {
-    class HistogramEqualizer : public BaseImageProcessor
+    class SobelFilter : public BaseImageProcessor
     {
     public:
         void OnCreate(
@@ -26,16 +26,18 @@ namespace CS570
 
         void Draw(ID3D12GraphicsCommandList *pCommandList) override;
 
-        CAULDRON_DX12::CBV_SRV_UAV& GetOutputSrv() override { return m_outputUav; }
-        CAULDRON_DX12::Texture& GetOutputResource() override { return m_equalizedOutput; }
+        CAULDRON_DX12::CBV_SRV_UAV& GetOutputSrv() override { return m_combine.GetOutputSrv(); }
+        CAULDRON_DX12::Texture& GetOutputResource() override { return m_combine.GetOutputResource(); }
 
     private:
         void CreateOutputResource(CAULDRON_DX12::Texture& input);
 
         ID3D12RootSignature* m_pRootSignature = nullptr;
-        ID3D12PipelineState* m_pPipeline = nullptr;
+        ID3D12PipelineState* m_pHorizontalPipeline = nullptr;
+        ID3D12PipelineState* m_pVerticalPipeline = nullptr;
 
-        CAULDRON_DX12::Texture m_equalizedOutput;
+        CAULDRON_DX12::Texture m_horizFilterTex;
+        CAULDRON_DX12::Texture m_vertFilterTex;
 
         struct Constants
         {
@@ -49,13 +51,13 @@ namespace CS570
 
         CAULDRON_DX12::CBV_SRV_UAV m_constBuffer; // dimension
 
-        CAULDRON_DX12::CBV_SRV_UAV m_inputSrvTable;
-        CAULDRON_DX12::CBV_SRV_UAV m_outputUav;
-        CAULDRON_DX12::CBV_SRV_UAV m_outputSrv;
+        CAULDRON_DX12::CBV_SRV_UAV m_inputSrv;
+        CAULDRON_DX12::CBV_SRV_UAV m_horizFilterUav;
+        CAULDRON_DX12::CBV_SRV_UAV m_vertFilterUav;
+
+        SobelFilterCombine m_combine;
 
         CAULDRON_DX12::ResourceViewHeaps* m_pResourceViewHeaps = nullptr;
         CAULDRON_DX12::DynamicBufferRing* m_pConstantBufferRing = nullptr;
-
-        ComputeHistogram m_computeHistogram;
     };
 }

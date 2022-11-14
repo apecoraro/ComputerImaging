@@ -19,6 +19,7 @@ void Blur(uint3 dispatchId : SV_DispatchThreadID)
     [loop]
     for (uint row = 0; row < KERNEL_HEIGHT; ++row)
     {
+        [loop]
         for (uint col = 0; col < KERNEL_WIDTH; ++col)
         {
             float weight = weightsTex.Load(int3(col, row, 0));
@@ -36,6 +37,7 @@ void Blur(uint3 dispatchId : SV_DispatchThreadID)
     [loop]
     for (row = 0; row < KERNEL_HEIGHT; ++row)
     {
+        [loop]
         for (uint col = 0; col < KERNEL_WIDTH; ++col)
         {
             blurredOutput += (

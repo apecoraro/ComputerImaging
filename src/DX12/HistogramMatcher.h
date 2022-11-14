@@ -28,6 +28,7 @@ namespace CS570
         void Draw(ID3D12GraphicsCommandList *pCommandList) override;
 
         CAULDRON_DX12::CBV_SRV_UAV& GetOutputSrv() override { return m_outputUav; }
+        CAULDRON_DX12::Texture& GetOutputResource() override { return m_matchedOutput; }
 
     private:
         void CreateOutputResource(CAULDRON_DX12::Texture& input);

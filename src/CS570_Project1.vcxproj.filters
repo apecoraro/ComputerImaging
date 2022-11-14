@@ -153,6 +153,15 @@
     <ClCompile Include="DX12\GaussianBlur.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\develop\repos\ComputerImaging\src\DX12\SobelFilter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DX12\SobelFilterCombine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\..\..\develop\repos\ComputerImaging\src\DX12\UnsharpMask.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DX12\ImageProcessor.h">
@@ -290,6 +299,15 @@
     <ClInclude Include="DX12\GaussianBlur.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\..\..\develop\repos\ComputerImaging\src\DX12\SobelFilter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\SobelFilterCombine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\UnsharpMask.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="DX12\RenderImage.hlsl">
@@ -323,6 +341,12 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="DX12\HistogramInitInverseLUT.hlsl">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="DX12\SobelFilter.hlsl">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="DX12\SobelFilterCombine.hlsl">
       <Filter>Source Files</Filter>
     </None>
   </ItemGroup>

@@ -145,6 +145,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\..\..\develop\repos\ComputerImaging\src\DX12\SobelFilter.cpp" />
+    <ClCompile Include="..\..\..\..\..\..\develop\repos\ComputerImaging\src\DX12\UnsharpMask.cpp" />
     <ClCompile Include="DX12\Async.cpp" />
     <ClCompile Include="DX12\CommandListRing.cpp" />
     <ClCompile Include="DX12\ComputeHistogram.cpp" />
@@ -178,6 +180,7 @@
     <ClCompile Include="DX12\ShaderCompiler.cpp" />
     <ClCompile Include="DX12\ShaderCompilerCache.cpp" />
     <ClCompile Include="DX12\ShaderCompilerHelper.cpp" />
+    <ClCompile Include="DX12\SobelFilterCombine.cpp" />
     <ClCompile Include="DX12\StaticBufferPool.cpp" />
     <ClCompile Include="DX12\StaticConstantBufferPool.cpp" />
     <ClCompile Include="DX12\stdafx.cpp" />
@@ -190,6 +193,7 @@
     <ClCompile Include="DX12\WICLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\..\..\develop\repos\ComputerImaging\src\DX12\SobelFilter.h" />
     <ClInclude Include="DX12\Async.h" />
     <ClInclude Include="DX12\AsyncCache.h" />
     <ClInclude Include="DX12\CommandListRing.h" />
@@ -225,12 +229,14 @@
     <ClInclude Include="DX12\ShaderCompiler.h" />
     <ClInclude Include="DX12\ShaderCompilerCache.h" />
     <ClInclude Include="DX12\ShaderCompilerHelper.h" />
+    <ClInclude Include="DX12\SobelFilterCombine.h" />
     <ClInclude Include="DX12\StaticBufferPool.h" />
     <ClInclude Include="DX12\StaticConstantBufferPool.h" />
     <ClInclude Include="DX12\stdafx.h" />
     <ClInclude Include="DX12\SwapChain.h" />
     <ClInclude Include="DX12\Texture.h" />
     <ClInclude Include="DX12\threadpool.h" />
+    <ClInclude Include="DX12\UnsharpMask.h" />
     <ClInclude Include="DX12\UploadHeap.h" />
     <ClInclude Include="DX12\UploadHeapSimple.h" />
     <ClInclude Include="DX12\UserMarkers.h" />
@@ -278,6 +284,16 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="DX12\HistogramInitInverseLUT.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DX12\SobelFilter.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DX12\SobelFilterCombine.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

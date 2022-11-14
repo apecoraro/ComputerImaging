@@ -128,12 +128,14 @@ void Sample::OnCreate(HWND hWnd)
 
     ImGUI_Init((void *)hWnd);
 
-    m_currentOperation = 8;
+    m_currentOperation = 10;
     std::string operations[] = {
         "Add", "Subtract", "Product",
         "Negative", "Log", "Power",
         "Histogram Equalization", "Histogram Match",
-        "Gaussian Blur"
+        "Gaussian Blur",
+        "Sobel Filter",
+        "Unsharp Mask"
     };
     m_operations.insert(m_operations.end(), operations, &operations[sizeof(operations) / sizeof(operations[0])]);
     m_currentInput1 = 0;
@@ -315,12 +317,27 @@ void Sample::BuildUI()
         if (ImGui::Combo("Input1", &m_currentInput1, inputs.data(), inputs.size()))
             inputsUpdated = lastInput1 != m_currentInput1;
 
+        if (operation == "Add" || operation == "Subtract" ||
+            operation == "Product" || operation == "Unsharp Mask")
+        {
+            static float weightInput1 = 1.0f;
+            if (ImGui::SliderFloat("Input1 Weight", &weightInput1, -10.0f, 10.0f, "%.2f"))
+                m_node->SetWeightInput1(weightInput1);
+        }
+
         int lastInput2 = m_currentInput2;
         if (operation == "Add" || operation == "Subtract"||
             operation == "Product" || operation == "Histogram Match")
         {
             if (ImGui::Combo("Input2", &m_currentInput2, inputs.data(), inputs.size()))
                 inputsUpdated = lastInput2 != m_currentInput2;
+
+            if (operation != "Histogram Match")
+            {
+                static float weightInput2 = 1.0f;
+                if (ImGui::SliderFloat("Input2 Weight", &weightInput2, -10.0f, 10.0f, "%.2f"))
+                    m_node->SetWeightInput2(weightInput2);
+            }
         }
 
         if (inputsUpdated)
@@ -348,7 +365,7 @@ void Sample::BuildUI()
             if (ImGui::SliderFloat("Power Raise", &powerRaise, 0.0f, 2.0f, "%.3f"))
                 m_node->SetPowerRaise(powerRaise);
         }
-        else if (operation == "Gaussian Blur")
+        else if (operation == "Gaussian Blur" || operation == "Unsharp Mask")
         {
             static int32_t currentBlurKernelSize = 0u;
             const char* blurKernelSizes[] = {
@@ -358,7 +375,7 @@ void Sample::BuildUI()
                 m_node->SetBlurKernelSize(atoi(blurKernelSizes[currentBlurKernelSize]));
 
             static float currentBlurVariance = 1.0f;
-            if (ImGui::SliderFloat("Blur Variance", &currentBlurVariance, 1.0f, 4.0f, "%.3f"))
+            if (ImGui::SliderFloat("Blur Variance", &currentBlurVariance, 0.0f, 50.0f, "%.3f"))
                 m_node->SetBlurVariance(currentBlurVariance);
         }
 

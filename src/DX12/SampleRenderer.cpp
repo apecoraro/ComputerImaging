@@ -77,6 +77,12 @@ void SampleRenderer::OnCreate(
     m_gaussianBlur.OnCreate(m_inputTexture1, m_blurKernelSize, m_blurVariance,
         m_pDevice, &m_uploadHeap, &m_resourceViewHeaps, &m_constantBufferRing);
 
+    m_sobelFilter.OnCreate(m_inputTexture1,
+        m_pDevice, &m_uploadHeap, &m_resourceViewHeaps, &m_constantBufferRing);
+
+    m_unsharpMask.OnCreate(m_inputTexture1, m_blurKernelSize, m_blurVariance,
+        m_pDevice, &m_uploadHeap, &m_resourceViewHeaps, &m_constantBufferRing);
+
     SetOperation(initialOperation);
 
     m_imageRenderer.OnCreate(m_pDevice, &m_resourceViewHeaps, &m_vidMemBufferPool, pSwapChain->GetFormat());
@@ -269,6 +275,8 @@ void SampleRenderer::SetOperation(const std::string& operation)
     else if (operation == "Histogram Equalization") m_pCurrentOperation = &m_histogramEqualizer;
     else if (operation == "Histogram Match") m_pCurrentOperation = &m_histogramMatcher;
     else if (operation == "Gaussian Blur") m_pCurrentOperation = &m_gaussianBlur;
+    else if (operation == "Sobel Filter") m_pCurrentOperation = &m_sobelFilter;
+    else if (operation == "Unsharp Mask") m_pCurrentOperation = &m_unsharpMask;
 }
 
 void SampleRenderer::SetInput1(const std::string& inputImage1)
@@ -281,6 +289,22 @@ void SampleRenderer::SetInput2(const std::string& inputImage2)
 {
     m_rebuildImage2 = true;
     m_inputImage2 = inputImage2;
+}
+
+
+void SampleRenderer::SetWeightInput1(float weight)
+{
+    m_addOperation.SetWeightInput1(weight);
+    m_subtractOperation.SetWeightInput1(weight);
+    m_productOperation.SetWeightInput1(weight);
+    m_unsharpMask.SetWeight(weight);
+}
+
+void SampleRenderer::SetWeightInput2(float weight)
+{
+    m_addOperation.SetWeightInput2(weight);
+    m_subtractOperation.SetWeightInput2(weight);
+    m_productOperation.SetWeightInput2(weight);
 }
 
 void SampleRenderer::OnPostRender()
@@ -306,6 +330,8 @@ void SampleRenderer::OnPostRender()
         m_rebuildImage2 = false;
     }
 
+    m_recreateBlurWeights = false;
+
     m_addOperation.OnDestroy();
     m_subtractOperation.OnDestroy();
     m_productOperation.OnDestroy();
@@ -317,6 +343,10 @@ void SampleRenderer::OnPostRender()
     m_histogramMatcher.OnDestroy();
 
     m_gaussianBlur.OnDestroy();
+
+    m_sobelFilter.OnDestroy();
+
+    m_unsharpMask.OnDestroy();
 
     m_addOperation.OnCreate("Add",
         m_inputTexture1, m_inputTexture2,
@@ -346,6 +376,12 @@ void SampleRenderer::OnPostRender()
     m_gaussianBlur.OnCreate(m_inputTexture1, m_blurKernelSize, m_blurVariance,
         m_pDevice, &m_uploadHeap, &m_resourceViewHeaps, &m_constantBufferRing);
 
+    m_sobelFilter.OnCreate(m_inputTexture1,
+        m_pDevice, &m_uploadHeap, &m_resourceViewHeaps, &m_constantBufferRing);
+
+    m_unsharpMask.OnCreate(m_inputTexture1, m_blurKernelSize, m_blurVariance,
+        m_pDevice, &m_uploadHeap, &m_resourceViewHeaps, &m_constantBufferRing);
+
     m_vidMemBufferPool.UploadData(m_uploadHeap.GetCommandList());
     m_uploadHeap.FlushAndFinish();
 
@@ -354,6 +390,8 @@ void SampleRenderer::OnPostRender()
 
 void SampleRenderer::OnDestroy()
 {
+    m_pDevice->GPUFlush();
+
     m_imGUI.OnDestroy();
 
     m_addOperation.OnDestroy();
@@ -365,6 +403,12 @@ void SampleRenderer::OnDestroy()
 
     m_histogramEqualizer.OnDestroy();
     m_histogramMatcher.OnDestroy();
+
+    m_gaussianBlur.OnDestroy();
+
+    m_sobelFilter.OnDestroy();
+
+    m_unsharpMask.OnDestroy();
 
     m_imageRenderer.OnDestroy();
 

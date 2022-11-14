@@ -13,11 +13,12 @@
 
 namespace CS570
 {
-    class HistogramEqualizer : public BaseImageProcessor
+    class SobelFilterCombine : public BaseImageProcessor
     {
     public:
         void OnCreate(
-            CAULDRON_DX12::Texture& input,
+            CAULDRON_DX12::Texture& horizFilterTex,
+            CAULDRON_DX12::Texture& vertFilterTex,
             CAULDRON_DX12::Device* pDevice,
             CAULDRON_DX12::UploadHeap* pUploadHeap,
             CAULDRON_DX12::ResourceViewHeaps* pResourceViewHeaps,
@@ -27,7 +28,7 @@ namespace CS570
         void Draw(ID3D12GraphicsCommandList *pCommandList) override;
 
         CAULDRON_DX12::CBV_SRV_UAV& GetOutputSrv() override { return m_outputUav; }
-        CAULDRON_DX12::Texture& GetOutputResource() override { return m_equalizedOutput; }
+        CAULDRON_DX12::Texture& GetOutputResource() override { return m_output; }
 
     private:
         void CreateOutputResource(CAULDRON_DX12::Texture& input);
@@ -35,7 +36,7 @@ namespace CS570
         ID3D12RootSignature* m_pRootSignature = nullptr;
         ID3D12PipelineState* m_pPipeline = nullptr;
 
-        CAULDRON_DX12::Texture m_equalizedOutput;
+        CAULDRON_DX12::Texture m_output;
 
         struct Constants
         {
@@ -55,7 +56,5 @@ namespace CS570
 
         CAULDRON_DX12::ResourceViewHeaps* m_pResourceViewHeaps = nullptr;
         CAULDRON_DX12::DynamicBufferRing* m_pConstantBufferRing = nullptr;
-
-        ComputeHistogram m_computeHistogram;
     };
 }

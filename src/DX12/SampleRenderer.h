@@ -11,9 +11,11 @@
 #include "ImageRenderer.h"
 #include "Imgui.h"
 #include "ResourceViewHeaps.h"
-#include "Texture.h"
+#include "SobelFilter.h"
 #include "StaticBufferPool.h"
 #include "SwapChain.h"
+#include "Texture.h"
+#include "UnsharpMask.h"
 
 #include <string>
 
@@ -52,8 +54,12 @@ namespace CS570
 
         const std::string& GetOperation() const { return m_currentOperation; }
         void SetOperation(const std::string& operation);
+
         void SetInput1(const std::string& inputImage1);
         void SetInput2(const std::string& inputImage2);
+
+        void SetWeightInput1(float weight);
+        void SetWeightInput2(float weight);
 
         void SetLogConstant(float constant) { m_logOperation.SetLogConstant(constant); }
         void SetPowerConstant(float constant) { m_powerOperation.SetPowerConstant(constant); }
@@ -68,6 +74,7 @@ namespace CS570
         void SetBlurVariance(float blurVariance)
         {
             m_gaussianBlur.SetVariance(blurVariance);
+            m_unsharpMask.SetBlurVariance(blurVariance);
         }
 
         void SetDisplayFilter(D3D12_FILTER filter) { m_displayFilter = filter; }
@@ -121,6 +128,10 @@ namespace CS570
         HistogramMatcher m_histogramMatcher;
 
         GaussianBlur m_gaussianBlur;
+
+        SobelFilter m_sobelFilter;
+
+        UnsharpMask m_unsharpMask;
 
         D3D12_FILTER m_displayFilter = D3D12_FILTER_MIN_MAG_LINEAR_MIP_POINT;
         ImageRenderer m_imageRenderer;
