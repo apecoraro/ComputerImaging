@@ -1,4 +1,4 @@
-#include "SobelFilter.h"
+#include "FourierTransform.h"
 
 #include "Device.h"
 #include "DynamicBufferRing.h"
@@ -16,7 +16,7 @@
 using namespace CS570;
 using namespace CAULDRON_DX12;
 
-void SobelFilter::OnCreate(
+void FourierTransform::OnCreate(
     Texture& input,
     Device* pDevice,
     UploadHeap* pUploadHeap,
@@ -58,40 +58,41 @@ void SobelFilter::OnCreate(
             pDevice->GetDevice()->CreateRootSignature(
                 0, pOutBlob->GetBufferPointer(), pOutBlob->GetBufferSize(), IID_PPV_ARGS(&m_pRootSignature))
         );
-        CAULDRON_DX12::SetName(m_pRootSignature, std::string("SobelFilter::RootSignature"));
+        CAULDRON_DX12::SetName(m_pRootSignature, std::string("FourierTransform::RootSignature"));
 
         pOutBlob->Release();
         if (pErrorBlob)
             pErrorBlob->Release();
     }
 
-    D3D12_SHADER_BYTECODE horizontalByteCode = {};
-    DefineList defines;
-    CAULDRON_DX12::CompileShaderFromFile(
-        "DX12/SobelFilter.hlsl",
-        &defines,
-        "HorizontalFilter",
-        "-T cs_6_0 /Zi /Zss -Od -Qembed_debug",
-        &horizontalByteCode);
-
     D3D12_COMPUTE_PIPELINE_STATE_DESC descPso = {};
-    descPso.CS = horizontalByteCode;
     descPso.Flags = D3D12_PIPELINE_STATE_FLAG_NONE;
     descPso.pRootSignature = m_pRootSignature;
     descPso.NodeMask = 0;
 
-    ThrowIfFailed(pDevice->GetDevice()->CreateComputePipelineState(&descPso, IID_PPV_ARGS(&m_pHorizontalPipeline)));
-
+    DefineList defines;
     D3D12_SHADER_BYTECODE verticalByteCode = {};
     CAULDRON_DX12::CompileShaderFromFile(
-        "DX12/SobelFilter.hlsl",
+        "DX12/FourierTransform.hlsl",
         &defines,
-        "VerticalFilter",
+        "VerticalPass",
         "-T cs_6_0 /Zi /Zss -Od -Qembed_debug",
         &verticalByteCode);
     descPso.CS = verticalByteCode;
 
     ThrowIfFailed(pDevice->GetDevice()->CreateComputePipelineState(&descPso, IID_PPV_ARGS(&m_pVerticalPipeline)));
+
+
+    D3D12_SHADER_BYTECODE horizontalByteCode = {};
+    CAULDRON_DX12::CompileShaderFromFile(
+        "DX12/FourierTransform.hlsl",
+        &defines,
+        "HorizontalPass",
+        "-T cs_6_0 /Zi /Zss -Od -Qembed_debug",
+        &horizontalByteCode);
+    descPso.CS = horizontalByteCode;
+
+    ThrowIfFailed(pDevice->GetDevice()->CreateComputePipelineState(&descPso, IID_PPV_ARGS(&m_pHorizontalPipeline)));
 
     m_pResourceViewHeaps->AllocCBV_SRV_UAVDescriptor(1, &m_constBuffer);
 
@@ -99,12 +100,9 @@ void SobelFilter::OnCreate(
     input.CreateSRV(0, &m_inputSrv);
 
     CreateOutputResource(input);
-
-    m_combine.OnCreate(m_horizFilterTex, m_vertFilterTex,
-        pDevice, pUploadHeap, pResourceViewHeaps, pConstantBufferRing);
 }
 
-void SobelFilter::CreateOutputResource(Texture& input)
+void FourierTransform::CreateOutputResource(Texture& input)
 {
     CD3DX12_RESOURCE_DESC outputDesc =
         CD3DX12_RESOURCE_DESC::Tex2D(
@@ -116,25 +114,27 @@ void SobelFilter::CreateOutputResource(Texture& input)
             0, // sample quality
             D3D12_RESOURCE_FLAG_ALLOW_UNORDERED_ACCESS);
 
-    m_horizFilterTex.InitRenderTarget(m_pDevice, "SobelFilterIntermediateOutput", &outputDesc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    m_fOfXv.InitRenderTarget(m_pDevice, "F(x,v)", &outputDesc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-    m_pResourceViewHeaps->AllocCBV_SRV_UAVDescriptor(1, &m_horizFilterUav);
-    m_horizFilterTex.CreateUAV(0, &m_horizFilterUav);
+    m_pResourceViewHeaps->AllocCBV_SRV_UAVDescriptor(1, &m_fOfXvUav);
+    m_fOfXv.CreateUAV(0, &m_fOfXvUav);
+    m_fOfXv.CreateSRV(0, &m_fOfXvSrv);
 
-    m_vertFilterTex.InitRenderTarget(m_pDevice, "SobelFilterOutput", &outputDesc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
+    m_fOfUv.InitRenderTarget(m_pDevice, "F(u,v)", &outputDesc, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
-    m_pResourceViewHeaps->AllocCBV_SRV_UAVDescriptor(1, &m_vertFilterUav);
-    m_vertFilterTex.CreateUAV(0, &m_vertFilterUav);
+    m_pResourceViewHeaps->AllocCBV_SRV_UAVDescriptor(1, &m_fOfUvUav);
+    m_fOfUv.CreateUAV(0, &m_fOfUvUav);
+    m_fOfUv.CreateSRV(0, &m_fOfUvSrv);
 
     m_constants.outputWidth = input.GetWidth();
     m_constants.outputHeight = input.GetHeight();
 }
 
-void SobelFilter::OnDestroy()
+void FourierTransform::OnDestroy()
 {
-    m_horizFilterTex.OnDestroy();
+    m_fOfXv.OnDestroy();
 
-    m_vertFilterTex.OnDestroy();
+    m_fOfUv.OnDestroy();
 
     if (m_pHorizontalPipeline != nullptr)
     {
@@ -155,24 +155,25 @@ void SobelFilter::OnDestroy()
     }
 }
 
-void SobelFilter::Draw(ID3D12GraphicsCommandList* pCommandList)
+void FourierTransform::Draw(ID3D12GraphicsCommandList* pCommandList)
 {
-    UserMarker marker(pCommandList, "SobelFilter");
+    UserMarker marker(pCommandList, "FourierTransform");
 
     CD3DX12_RESOURCE_BARRIER barriers[2] = {
         CD3DX12_RESOURCE_BARRIER::Transition(
-            m_horizFilterTex.GetResource(),
+            m_fOfUv.GetResource(),
             D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
         CD3DX12_RESOURCE_BARRIER::Transition(
-            m_vertFilterTex.GetResource(),
+            m_fOfXv.GetResource(),
             D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE,
             D3D12_RESOURCE_STATE_UNORDERED_ACCESS),
     };
 
     pCommandList->ResourceBarrier(2, barriers);
 
-    pCommandList->SetPipelineState(m_pHorizontalPipeline);
+    // Vertical Pass
+    pCommandList->SetPipelineState(m_pVerticalPipeline);
     pCommandList->SetComputeRootSignature(m_pRootSignature);
 
     D3D12_GPU_VIRTUAL_ADDRESS cbHandle;
@@ -186,7 +187,7 @@ void SobelFilter::Draw(ID3D12GraphicsCommandList* pCommandList)
     pCommandList->SetDescriptorHeaps(2, pDescriptorHeaps);
 
     pCommandList->SetComputeRootConstantBufferView(0, cbHandle);
-    pCommandList->SetComputeRootDescriptorTable(1, m_horizFilterUav.GetGPU());
+    pCommandList->SetComputeRootDescriptorTable(1, m_fOfXvUav.GetGPU());
     pCommandList->SetComputeRootDescriptorTable(2, m_inputSrv.GetGPU());
 
     uint32_t dispatchX = (m_constants.outputWidth + 7) / 8;
@@ -196,25 +197,24 @@ void SobelFilter::Draw(ID3D12GraphicsCommandList* pCommandList)
 
     barriers[0] =
         CD3DX12_RESOURCE_BARRIER::Transition(
-            m_horizFilterTex.GetResource(),
+            m_fOfXv.GetResource(),
             D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
             D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     pCommandList->ResourceBarrier(1, barriers);
 
-    pCommandList->SetPipelineState(m_pVerticalPipeline);
-    pCommandList->SetComputeRootDescriptorTable(1, m_vertFilterUav.GetGPU());
-    pCommandList->SetComputeRootDescriptorTable(2, m_inputSrv.GetGPU());
+    // Horizontal Pass
+    pCommandList->SetPipelineState(m_pHorizontalPipeline);
+    pCommandList->SetComputeRootDescriptorTable(1, m_fOfUvUav.GetGPU());
+    pCommandList->SetComputeRootDescriptorTable(2, m_fOfXvUav.GetGPU());
 
     pCommandList->Dispatch(dispatchX, dispatchY, dispatchZ);
 
     barriers[0] =
         CD3DX12_RESOURCE_BARRIER::Transition(
-            m_vertFilterTex.GetResource(),
+            m_fOfUv.GetResource(),
             D3D12_RESOURCE_STATE_UNORDERED_ACCESS,
             D3D12_RESOURCE_STATE_NON_PIXEL_SHADER_RESOURCE | D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE);
 
     pCommandList->ResourceBarrier(1, barriers);
-
-    m_combine.Draw(pCommandList);
 }

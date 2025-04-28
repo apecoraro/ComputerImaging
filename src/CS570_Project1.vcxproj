@@ -145,8 +145,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\..\..\develop\repos\ComputerImaging\src\DX12\SobelFilter.cpp" />
-    <ClCompile Include="..\..\..\..\..\..\develop\repos\ComputerImaging\src\DX12\UnsharpMask.cpp" />
+    <ClCompile Include="DX12\FourierTransform.cpp" />
+    <ClCompile Include="DX12\SobelFilter.cpp" />
+    <ClCompile Include="DX12\UnsharpMask.cpp" />
     <ClCompile Include="DX12\Async.cpp" />
     <ClCompile Include="DX12\CommandListRing.cpp" />
     <ClCompile Include="DX12\ComputeHistogram.cpp" />
@@ -193,7 +194,8 @@
     <ClCompile Include="DX12\WICLoader.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\..\..\develop\repos\ComputerImaging\src\DX12\SobelFilter.h" />
+    <ClInclude Include="DX12\FourierTransform.h" />
+    <ClInclude Include="DX12\SobelFilter.h" />
     <ClInclude Include="DX12\Async.h" />
     <ClInclude Include="DX12\AsyncCache.h" />
     <ClInclude Include="DX12\CommandListRing.h" />
@@ -294,6 +296,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="DX12\SobelFilterCombine.hlsl">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="DX12\FourierTransform.hlsl">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>
